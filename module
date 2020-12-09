@@ -15,6 +15,8 @@ import schedule
 import modules.qrcodeGenerator as qrcodeGenerator
 import modules.qrcodeScanner as qrcodeScanner
 import time
+import pywhatkit
+
 try:
     os.system("cls")
 except Exception as e:
@@ -102,7 +104,7 @@ def sendEmail(to, content):
     server.ehlo()
     server.starttls()
     my_email_address = "acharyaraj9865032909@gmail.com" #USE YOUR EMAIL ADDRESS IF YOU ARE NOT SACHIN ACHARYA
-    my_email_password = os.environ.get("DB_PASSWORD") or "INPUT YOU PASSWORD HERE OR CHANGE WHOLE LINE WITH PASSWD"
+    my_email_password = os.environ.get("DB_PASSWORD") or "INPUT YOUR PASSWORD HERE OR CHANGE WHOLE LINE WITH PASSWD"
     server.login(my_email_address, my_email_password)
     server.sendmail(my_email_address, to, content)
     server.close()
@@ -164,11 +166,16 @@ if __name__ == "__main__":
             webbrowser.open("https://www.youtube.com/")
             webbrowser.WindowsDefault()
         elif 'stream' in query:
-            #https://www.youtube.com/results?search_query=how+to+make+python+search+google
             query = query.replace("stream", "")
             speak(f'Searching YouTube for {query}')
             print(f'Searching YouTube for {query}\n')
             webbrowser.open(f"https://www.youtube.com/results?search_query={query}")
+        elif 'play' in query and 'on youtube' in query:
+            query = query.replace('play', '')
+            query = query.replace('on youtube', '')
+            speak(f'Playing {query} on YouTube')
+            print(f'Playing {query} on YouTube')
+            pywhatkit.playonyt(query)
         elif 'search' in query:
             query = query.replace("search", "")
             speak(f'Googling {query}')
