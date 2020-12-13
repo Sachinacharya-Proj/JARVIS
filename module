@@ -1,7 +1,7 @@
 # IMPORTING ALL THE ESSENTIAL MODULES HERE
 import pyttsx3 #pip install pyttsx3
 import speech_recognition as sr #pip install speechRecognition
-import datetime # Defultly Available
+import datetime # Defaultly Available
 import wikipedia #pip install wikipedia
 import webbrowser # Default
 import os # Default
@@ -111,6 +111,9 @@ def sendEmail(to, content):
 
 if __name__ == "__main__":
     wishMe()
+    winsound.Beep(2000, 200)
+    winsound.Beep(2000, 200)
+
     while True:
     # if 1:
         query = takeCommand().lower()
@@ -176,6 +179,9 @@ if __name__ == "__main__":
             speak(f'Playing {query} on YouTube')
             print(f'Playing {query} on YouTube')
             pywhatkit.playonyt(query)
+        elif 'open' in query and 'devon ke dev' in query:
+            speak('Openning Devon ke Dev mahadev')
+            webbrowser.open('https://dkdmtv.blogspot.com/2020/05/devon-ke-dev-mahadev-episode-201-to-400.html')
         elif 'search' in query:
             query = query.replace("search", "")
             speak(f'Googling {query}')
@@ -184,17 +190,19 @@ if __name__ == "__main__":
 
         elif 'open stackoverflow' in query or "open stack overflow" in query:
             try:
-                speak("Oping Stackoverflow")
+                speak("Opening Stackoverflow")
                 webbrowser.open("https://stackoverflow.com/")
                 webbrowser.WindowsDefault()
             except Exception as e:
                 print(f"Error Occured!", format(e))
-                
+        elif 'open' in query and 'github' in query:
+            speak('Opening your github projects on web')
+            webbrowser.open('https://github.com/Sachinacharya-Proj/')
         elif query == 'play music' or query == "play musics":
             music_dir = 'C:\\Users\\Dell\\Music'
             songs = os.listdir(music_dir)
             selected_audio = songs[random.randint(0, len(songs) - 1)]
-            if ".mp3" in selected_audio:
+            if ".mp3" in selected_audio or 'm4a' in selected_audio:
                 pass
             else:
                 selected_audio = songs[random.randint(0, len(songs) - 1)]
