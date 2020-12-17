@@ -16,6 +16,7 @@ import modules.qrcodeGenerator as qrcodeGenerator
 import modules.qrcodeScanner as qrcodeScanner
 import time
 import pywhatkit
+import math
 
 try:
     os.system("cls")
@@ -25,7 +26,7 @@ except Exception as e:
 morning_greetings_array = ['Good morning, Sachin sir!', 'Hello sir, Very good morning', "Good Morming, Sachin Sir, how are you doin'"]
 afternoom_greetings_array = ['Afternoon, Sachin Sir!', "What's Up Sir, Good afternoon", "Nice to see you, again Sir"]
 evening_greetings_array = ['Good evening, Sachin, sir!', "Hope you were having a good time, evening sachin sir"]
-regular_greetings = ["You seems happy sir, today!", "You looks great as always", "I am so happy to here from you sir", "As always, I am at you service sir"]
+regular_greetings = ["You seems happy sir, today!", "You looks great as always", "I am so happy to hear from you sir", "As always, I am at you service sir"]
 
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
@@ -109,6 +110,22 @@ def sendEmail(to, content):
     server.sendmail(my_email_address, to, content)
     server.close()
 
+def printAndSpeak(querystring):
+    print(querystring)
+    speak(querystring)
+
+def shutDownCommandStarted(code):
+    start_time = time.time()
+    seconds = int(code)
+    while True:
+        current_time = time.time()
+        elapsed_time = current_time - start_time
+        elapsed_time = math.floor(elapsed_time)
+        print(f'Shutting down in T-{seconds - elapsed_time}')
+        if elapsed_time >= seconds:
+            print("Finished iterating in: " + str(int(elapsed_time))  + " seconds")
+            break
+
 if __name__ == "__main__":
     wishMe()
     winsound.Beep(2000, 200)
@@ -117,189 +134,186 @@ if __name__ == "__main__":
     while True:
     # if 1:
         query = takeCommand().lower()
+        if query.startswith('nitro'):
+            query = query.replace('nitro ', '', 1)
+            if 'wikipedia' in query:
+                try:
+                    speak(f'Searching {query}...')
+                    query = query.replace("wikipedia", "")
+                    results = wikipedia.summary(query)
+                    speak("According to Wikipedia")
+                    printAndSpeak(results)
+                except Exception:
+                    print("Error Occured! Sorry for Inconvinience")
+                    speak("Sorry, sir! Something unexcepted happened")
+            elif "generate qr code" in query or "create qr code" in query or "generate bar code" in query or "create bar code" in query or "create barcode" in query or "generate barcode" in query:
+                speak("You wanna Generate BAR CODE or QR CODE?")
+                taken = takeCommand()
+                if "qrcode" in taken or "qr code" in query:
+                    printAndSpeak("String you wanna wrap within in?")
+                    string = takeCommand()
+                    speak("Name for Output file?")
+                    nameFile = takeCommand()
+                    print(f"It will be coded to QR CODE: {string}")
+                    speak(f"String {string} will be converted to QR CODE, please check Folder Codes")
+                    result = qrcodeGenerator.CreateQRCode(string, nameFile)
+                    if result ==True:
+                        speak("QR CODE IS SUCCESSFULLY GENERATED")
+                elif "barcode" in query or "bar code" in query:
+                    speak("IT WILL GENERATE BARCODE ONLY FOR ALPHANUMERIC STRINGS")
+                    speak("String you wanna wrap within in?")
+                    string = takeCommand()
+                    speak("Name of Output file")
+                    nameFile = takeCommand()
+                    print(f"It will be coded to BAR CODE: {string}")
+                    speak(f"String {string} will be converted to BAR CODE, please check Folder Codes")
+                    result = qrcodeGenerator.BarcodeCreator(string, nameFile)
+                    if result ==True:
+                        speak("BAR CODE IS SUCCESSFULLY GENERATED")
 
-        # Logic for executing tasks based on query
-        if 'wikipedia' in query:
-            try:
-                speak(f'Searching {query}...')
-                query = query.replace("wikipedia", "")
-                results = wikipedia.summary(query)
-                speak("According to Wikipedia")
-                print(results)
-                speak(results)
-            except Exception:
-                print("Error Occured! Sorry for Inconvinience")
-                speak("Sorry, sir! Something unexcepted happened")
-        elif "generate qr code" in query or "create qr code" in query or "generate bar code" in query or "create bar code" in query or "create barcode" in query or "generate barcode" in query:
-            speak("You wanna Generate BAR CODE or QR CODE?")
-            taken = takeCommand()
-            if "qrcode" in taken or "qr code" in query:
-                print("String you wanna wrap within in?")
-                speak("String you wanna wrap within in?")
-                string = takeCommand()
-                speak("Name for Output file?")
-                nameFile = takeCommand()
-                print(f"It will be coded to QR CODE: {string}")
-                speak(f"String {string} will be converted to QR CODE, please check Folder Codes")
-                result = qrcodeGenerator.CreateQRCode(string, nameFile)
-                if result ==True:
-                    speak("QR CODE IS SUCCESSFULLY GENERATED")
-            elif "barcode" in query or "bar code" in query:
-                speak("IT WILL GENERATE BARCODE ONLY FOR ALPHANUMERIC STRINGS")
-                speak("String you wanna wrap within in?")
-                string = takeCommand()
-                speak("Name of Output file")
-                nameFile = takeCommand()
-                print(f"It will be coded to BAR CODE: {string}")
-                speak(f"String {string} will be converted to BAR CODE, please check Folder Codes")
-                result = qrcodeGenerator.BarcodeCreator(string, nameFile)
-                if result ==True:
-                    speak("BAR CODE IS SUCCESSFULLY GENERATED")
+            elif "morning" in query or "evening" in query or "afternoon" in query or"night" in query:
+                resultGot = ChatWithMeNow(query)
+                if resultGot != None:
+                    printAndSpeak(resultGot)
+                else:
+                    printAndSpeak('Hi, nice to see you, sir!')
+            elif query == "view all command":
+                queryString = "the command lines are\n1. Wikipedia follow by Subject to fetch data from wikipedia regarding Subject\n2. Opne YoutTube: Open youtube in browser\n3. Stream followed by content to view in Youtube\n4. Search followed by keyword to google it\n5. "
+                print(queryString)
 
-        elif "morning" in query or "evening" in query or "afternoon" in query or"night" in query:
-            resultGot = ChatWithMeNow(query)
-            if resultGot != None:
-                speak(resultGot)
-                print(resultGot)
-        elif query == "view all command":
-            queryString = "the command lines are\n1. Wikipedia follow by Subject to fetch data from wikipedia regarding Subject\n2. Opne YoutTube: Open youtube in browser\n3. Stream followed by content to view in Youtube\n4. Search followed by keyword to google it\n5. "
-            print(queryString)
-
-        elif 'open youtube' in query:
-            webbrowser.open("https://www.youtube.com/")
-            webbrowser.WindowsDefault()
-        elif 'stream' in query:
-            query = query.replace("stream", "")
-            speak(f'Searching YouTube for {query}')
-            print(f'Searching YouTube for {query}\n')
-            webbrowser.open(f"https://www.youtube.com/results?search_query={query}")
-        elif 'play' in query and 'on youtube' in query:
-            query = query.replace('play', '')
-            query = query.replace('on youtube', '')
-            speak(f'Playing {query} on YouTube')
-            print(f'Playing {query} on YouTube')
-            pywhatkit.playonyt(query)
-        elif 'open' in query and 'devon ke dev' in query:
-            speak('Openning Devon ke Dev mahadev')
-            webbrowser.open('https://dkdmtv.blogspot.com/2020/05/devon-ke-dev-mahadev-episode-201-to-400.html')
-        elif 'search' in query:
-            query = query.replace("search", "")
-            speak(f'Googling {query}')
-            print(f'Googling {query}\n')
-            webbrowser.open(f"https://www.google.com/search?q={query}")
-
-        elif 'open stackoverflow' in query or "open stack overflow" in query:
-            try:
-                speak("Opening Stackoverflow")
-                webbrowser.open("https://stackoverflow.com/")
+            elif 'open youtube' in query:
+                webbrowser.open("https://www.youtube.com/")
                 webbrowser.WindowsDefault()
-            except Exception as e:
-                print(f"Error Occured!", format(e))
-        elif 'open' in query and 'github' in query:
-            speak('Opening your github projects on web')
-            webbrowser.open('https://github.com/Sachinacharya-Proj/')
-        elif query == 'play music' or query == "play musics":
-            music_dir = 'C:\\Users\\Dell\\Music'
-            songs = os.listdir(music_dir)
-            selected_audio = songs[random.randint(0, len(songs) - 1)]
-            if ".mp3" in selected_audio or 'm4a' in selected_audio:
-                pass
-            else:
+            elif 'stream' in query:
+                query = query.replace("stream", "")
+                printAndSpeak(f'Searching YouTube for {query}')
+                webbrowser.open(f"https://www.youtube.com/results?search_query={query}")
+            elif 'play' in query and 'on youtube' in query:
+                query = query.replace('play', '')
+                query = query.replace('on youtube', '')
+                speak(f'Playing {query} on YouTube')
+                print(f'Playing {query} on YouTube')
+                pywhatkit.playonyt(query)
+            elif 'open' in query and 'devon ke dev' in query:
+                speak('Openning Devon ke Dev mahadev')
+                webbrowser.open('https://dkdmtv.blogspot.com/2020/05/devon-ke-dev-mahadev-episode-201-to-400.html')
+            elif 'search' in query:
+                query = query.replace("search", "")
+                speak(f'Googling {query}')
+                print(f'Googling {query}\n')
+                webbrowser.open(f"https://www.google.com/search?q={query}")
+
+            elif 'open stackoverflow' in query or "open stack overflow" in query:
+                try:
+                    speak("Opening Stackoverflow")
+                    webbrowser.open("https://stackoverflow.com/")
+                    webbrowser.WindowsDefault()
+                except Exception as e:
+                    print(f"Error Occured!", format(e))
+            elif 'open' in query and 'github' in query:
+                speak('Opening your github projects on web')
+                webbrowser.open('https://github.com/Sachinacharya-Proj/')
+            elif query == 'play music' or query == "play musics":
+                music_dir = 'C:\\Users\\Dell\\Music'
+                songs = os.listdir(music_dir)
                 selected_audio = songs[random.randint(0, len(songs) - 1)]
-            print(selected_audio)
-            speak(f"Playing {selected_audio}")
-            os.startfile(os.path.join(music_dir, selected_audio))
-        elif 'open code' in query:
-            codePath = "C:\\Users\\Dell\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
-            os.startfile(codePath)
-
-        elif 'open pycharm' in query:
-            codePath = "C:\\Program Files\\JetBrains\\PyCharm Community Edition 2020.1.4\\bin\\pycharm64.exe"
-            os.startfile(codePath)
-        elif query == "shutdown the computer" or query == "initiat shutdown command" or query == "shutdown my device" or query == "run shutdown command":
-            speak("You've executed Shutdown Command, are you sure, Sir?")
-            ask = takeCommand()
-            if "yes" in ask or "yep" in ask or "yeah" in ask or "yea" in ask or "sure" in ask or "positive" in ask or "damn yeah" in ask or "hell yeah" in query:
-                time.sleep(4)
-                os.system("shutdown /p")
-        elif "set alarm" in query:
-            print("Setting Alarm will pause Services of JARVIS as you wanna take rest")
-            speak("Setting Alarm will pause Services of JARVIS as you wanna take rest")
-            speak("For what is this alarm?")
-            reason = takeCommand()
-            speak("For what time should I set Alarm for you, sir?")
-            time = takeCommand()
-            SetAlarmPlease(reason, time)
-        elif "scan code" in query:
-            speak("You will need to end all session if you enter this command")
-            permission = takeCommand()
-            if "okay" in permission or "ok" in permission or "alright" in permission:
-                qrcodeScanner.MainFunc()
-
-        elif 'wrap up all' in query or 'close all' in query:
-            hour = int(datetime.datetime.now().hour)
-            speak("Closing all session including current one")
-            if hour > 22:
-                speak("Good night sir")
-            os.system("cls")
-            exit()
-        elif "let us chat" in query or "let's chat" in query:
-            speak("Alright sir, let's chat, I am listening sir!")
-            while True:
-                print('You are chatting with me')
-                print("________________________")
-                takingCommand = takeCommand()
-                if takingCommand == "exit chatting":
-                    print("Nice talks sir!")
-                    speak("Nice talks sir!")
-                    print("No more Chatting is going on")
-                    print("_______________________")
-                    break
+                if ".mp3" in selected_audio or 'm4a' in selected_audio:
+                    pass
                 else:
-                    resultGot = ChatWithMeNow(takingCommand)
-                    if resultGot != None:
-                        speak(resultGot)
-                        print(resultGot)
-            # print(ChatWithMeNow(str(query)))
-        elif query == "clear screen":
-            speak("Clearing Screen")
-            os.system("cls")
-        elif 'send email' in query or "send mail" in query:
-            try:
-                speak("Whome to?")
-                to = takeCommand()
-                takeAddress = input("Receiver Address: ")
-                speak("What should I say?")
-                content = takeCommand()
-                if takeAddress == "":
-                    receiver = to
-                else:
-                    receiver = takeAddress
-                speak("All okay sir, may I send Now?")
+                    selected_audio = songs[random.randint(0, len(songs) - 1)]
+                print(selected_audio)
+                speak(f"Playing {selected_audio}")
+                os.startfile(os.path.join(music_dir, selected_audio))
+            elif 'open code' in query:
+                codePath = "C:\\Users\\Dell\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
+                os.startfile(codePath)
+
+            elif 'open pycharm' in query:
+                codePath = "C:\\Program Files\\JetBrains\\PyCharm Community Edition 2020.1.4\\bin\\pycharm64.exe"
+                os.startfile(codePath)
+            elif query == "shutdown the computer" or query == "initiate shutdown command" or query == "shutdown my device" or query == "run shutdown command":
+                speak("You've executed Shutdown Command, are you sure, Sir?")
                 ask = takeCommand()
-                if ask == "send it" or ask == "send":
+                if "yes" in ask or "yep" in ask or "yeah" in ask or "yea" in ask or "sure" in ask or "positive" in ask or "damn yeah" in ask or "hell yeah" in query or 'shut it' in query:
+                    shutDownCommandStarted(4)
+            elif "set alarm" in query:
+                print("Setting Alarm will pause Services of JARVIS as you wanna take rest")
+                speak("Setting Alarm will pause Services of JARVIS as you wanna take rest")
+                speak("For what is this alarm?")
+                reason = takeCommand()
+                speak("For what time should I set Alarm for you, sir?")
+                time = takeCommand()
+                SetAlarmPlease(reason, time)
+            elif "scan code" in query:
+                speak("You will need to end all session if you enter this command")
+                permission = takeCommand()
+                if "okay" in permission or "ok" in permission or "alright" in permission:
+                    qrcodeScanner.MainFunc()
 
-                    sendEmail(receiver, content)
-                    speak(f"Email has been sent to {receiver}!")
-            except Exception as e:
-                print(e)
-                speak("Sorry, sir some technical error has been occured")
-        elif "what" in query or "find me" in query or "what time is it" in query or "what is" in query or "tell me" in query or "what about" in query:
-            try:
-                outGain = weatherForcaster.AskForDetails(query)
-                print(outGain)
-                speak(outGain)
-            except Exception:
-                print("Returned None")
-                speak("Sorry sir, Cannot found the required results!")
-                speak("You may need to Update me! Just asking")
-        elif query:
-            try:
-                outGain = weatherForcaster.AskForDetails(query)
-                if outGain == e:
-                    print("Error")
-                else:
+            elif 'wrap up all' in query or 'close all' in query:
+                hour = int(datetime.datetime.now().hour)
+                speak("Closing all session including current one")
+                if hour > 22:
+                    speak("Good night sir")
+                os.system("cls")
+                exit()
+            elif "let us chat" in query or "let's chat" in query:
+                speak("Alright sir, let's chat, I am listening sir!")
+                while True:
+                    print('You are chatting with me')
+                    print("________________________")
+                    takingCommand = takeCommand()
+                    if takingCommand == "exit chatting":
+                        print("Nice talks sir!")
+                        speak("Nice talks sir!")
+                        print("No more Chatting is going on")
+                        print("_______________________")
+                        break
+                    else:
+                        resultGot = ChatWithMeNow(takingCommand)
+                        if resultGot != None:
+                            speak(resultGot)
+                            print(resultGot)
+                # print(ChatWithMeNow(str(query)))
+            elif query == "clear screen":
+                speak("Clearing Screen")
+                os.system("cls")
+            elif 'send email' in query or "send mail" in query:
+                try:
+                    speak("Whome to?")
+                    to = takeCommand()
+                    takeAddress = input("Receiver Address: ")
+                    speak("What should I say?")
+                    content = takeCommand()
+                    if takeAddress == "":
+                        receiver = to
+                    else:
+                        receiver = takeAddress
+                    speak("All okay sir, may I send Now?")
+                    ask = takeCommand()
+                    if ask == "send it" or ask == "send":
+
+                        sendEmail(receiver, content)
+                        speak(f"Email has been sent to {receiver}!")
+                except Exception as e:
+                    print(e)
+                    speak("Sorry, sir some technical error has been occured")
+            elif "what" in query or "find me" in query or "what time is it" in query or "what is" in query or "tell me" in query or "what about" in query:
+                try:
+                    outGain = weatherForcaster.AskForDetails(query)
                     print(outGain)
                     speak(outGain)
-            except Exception:
-                print("Returned None")
+                except Exception:
+                    print("Returned None")
+                    speak("Sorry sir, Cannot found the required results!")
+                    speak("You may need to Update me! Just asking")
+            elif query:
+                try:
+                    outGain = weatherForcaster.AskForDetails(query)
+                    if outGain == e:
+                        print("Error")
+                    else:
+                        print(outGain)
+                        speak(outGain)
+                except Exception:
+                    print("Returned None")
