@@ -17,6 +17,11 @@ import modules.qrcodeScanner as qrcodeScanner
 import time
 import pywhatkit
 import math
+from email.message import EmailMessage
+from tkinter import filedialog
+import imghdr
+
+msg = EmailMessage()
 
 try:
     os.system("cls")
@@ -100,14 +105,13 @@ def takeCommand():
         return "None"
     return query.lower()
 
-def sendEmail(to, content):
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.ehlo()
-    server.starttls()
-    my_email_address = "acharyaraj9865032909@gmail.com" #USE YOUR EMAIL ADDRESS IF YOU ARE NOT SACHIN ACHARYA
-    my_email_password = os.environ.get("DB_PASSWORD") or "INPUT YOUR PASSWORD HERE OR CHANGE WHOLE LINE WITH PASSWD"
+my_email_address =  os.environ.get('useremail') or 'Your Email Address'
+my_email_password = os.environ.get("userpass") or "INPUT YOUR PASSWORD HERE OR CHANGE WHOLE LINE WITH PASSWD"
+
+def sendEmail(message):
+    server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
     server.login(my_email_address, my_email_password)
-    server.sendmail(my_email_address, to, content)
+    server.send_message(message)
     server.close()
 
 def printAndSpeak(querystring):
@@ -126,6 +130,61 @@ def shutDownCommandStarted(code):
             print("Finished iterating in: " + str(int(elapsed_time))  + " seconds")
             break
 
+def goGetDetails():
+    speak("Do you want to provide Receiver email via manually or with speech")
+    getAnswer = takeCommand()
+    if getAnswer == 'speech' or getAnswer == 'voice' or getAnswer == 'with voice' or getAnswer == 'with voice command' or getAnswer == 'voice command' or getAnswer == 'with speech':
+        speak('Receiver Email Address, sir?')
+        to = takeCommand()
+        to = to.replace(' ', '')
+    else:
+        speak("Then Please provide address manually!")
+        to = input('Receiver Address: ')
+    speak('What is the Subject?')
+    subject = takeCommand()
+    speak("What should I say?")
+    content = takeCommand()
+    printAndSpeak('Do you want to add Attachment?')
+    answer = takeCommand()
+    if answer == 'yes' or answer == 'yup' or answer == 'yep' or answer == 'sure' or answer == 'okay' or answer == 'ok':
+        filearray = filedialog.askopenfilenames()
+        for files in filearray:
+            with open(files, 'rb') as f:
+                file_data = f.read()
+                filetype = imghdr.what(f.name)
+            breakedArray = str(files).split('/')
+            lengthOfArray = len(breakedArray)
+            msg.add_attachment(file_data, maintype='image', subtype=filetype, filename=breakedArray[lengthOfArray - 1])
+    msg['Subject'] = subject
+    msg['From'] = my_email_address
+    msg['To'] = to
+    msg.set_content(content)
+    speak('All okay sir? May I send it now?')
+    askPermisison = takeCommand()
+    if askPermisison == 'send it' or askPermisison == 'send':
+        try:
+            speak('Sending email to {}'.format(to))
+            sendEmail(msg)
+            speak(f"Email has been sent to {to}!")
+            return "success"
+        except Exception as e:
+            print(e)
+            speak('Error Occured! wanna retry?')
+            askYar = takeCommand()
+            if askYar == 'okay' or askYar == 'yes' or askYar == 'yup':
+                goGetDetails()
+            else:
+                printAndSpeak('Email cannot be send!')
+                return "error"
+    else:
+        speak('Message Cancelled, wanna retry?')
+        askYar = takeCommand()
+        if askYar == 'okay' or askYar == 'yes' or askYar == 'yup':
+            goGetDetails()
+        else:
+            printAndSpeak('Send Email Task has been withdrawn!')
+            return "error"
+
 if __name__ == "__main__":
     wishMe()
     winsound.Beep(2000, 200)
@@ -134,7 +193,7 @@ if __name__ == "__main__":
     while True:
     # if 1:
         query = takeCommand().lower()
-        if query.startswith('nitro'):
+        if query.startswith('oracle'):
             query = query.replace('nitro ', '', 1)
             if 'wikipedia' in query:
                 try:
@@ -278,26 +337,8 @@ if __name__ == "__main__":
             elif query == "clear screen":
                 speak("Clearing Screen")
                 os.system("cls")
-            elif 'send email' in query or "send mail" in query:
-                try:
-                    speak("Whome to?")
-                    to = takeCommand()
-                    takeAddress = input("Receiver Address: ")
-                    speak("What should I say?")
-                    content = takeCommand()
-                    if takeAddress == "":
-                        receiver = to
-                    else:
-                        receiver = takeAddress
-                    speak("All okay sir, may I send Now?")
-                    ask = takeCommand()
-                    if ask == "send it" or ask == "send":
-
-                        sendEmail(receiver, content)
-                        speak(f"Email has been sent to {receiver}!")
-                except Exception as e:
-                    print(e)
-                    speak("Sorry, sir some technical error has been occured")
+            elif 'send email' in query or "send mail" in query or 'sendmail' in query or 'sendemail' in query:
+                goGetDetails()
             elif "what" in query or "find me" in query or "what time is it" in query or "what is" in query or "tell me" in query or "what about" in query:
                 try:
                     outGain = weatherForcaster.AskForDetails(query)
@@ -316,4 +357,4 @@ if __name__ == "__main__":
                         print(outGain)
                         speak(outGain)
                 except Exception:
-                    print("Returned None")
+                    print("Cannot find any results! Nice time")
