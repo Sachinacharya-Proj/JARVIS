@@ -1,0 +1,11 @@
+pyttsx3==2.90
+SpeechRecognition==3.8.1
+wikipedia==1.4.0
+datefinder==0.7.1
+schedule==0.6.0
+pywhatkit==3.2
+PyQRCode==1.2.1
+pyzbar==0.1.8
+PyAutoGUI==0.9.50
+opencv-python==4.4.0.44
+wolframalpha==4.0.0

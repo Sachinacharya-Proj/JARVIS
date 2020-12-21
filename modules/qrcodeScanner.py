@@ -1,12 +1,3 @@
-###########################################################################
-# READING QR CODE SHOWN ON THE CAMERA AND DETECTING THE TEXT ON THE SCREEN
-###########################################################################
-# CODE STARTED FROM HERE AND IMPORTING ESSENTIALS FROM PYTHON LIBRARY
-###########################################################################
-# UNUSED MODULES
-# import numpy as np
-###########################################################################
-
 import cv2
 import pyzbar.pyzbar as pyzbar
 import pyautogui

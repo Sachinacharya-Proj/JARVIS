@@ -1,6 +1,4 @@
-# query = "what is the time"
-
-elif 'what is the time' in query or "what time is this" in query or "can i get the time" in query:
+        if 'what is the time' in query or "what time is this" in query or "can i get the time" in query:
             hour = datetime.datetime.now().hour
             minutes = datetime.datetime.now().minute
             AmPm = "AM"

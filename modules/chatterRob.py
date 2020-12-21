@@ -1,6 +1,5 @@
 import random
 import datetime
-
 indents = [
     {
         "tags": "greeting",
@@ -68,8 +67,6 @@ def time_greeting(query):
             return fallback_night_pos[random.randint(0, len(fallback_night_pos) - 1)]
         else:
             return AppendTimeIdentifier(fallback_night_neg[random.randint(0, len(fallback_night_neg) - 1)])
-
-
     print(dateNow)
 
 def ChatWithMeNow(stringQuery):
@@ -82,5 +79,4 @@ def ChatWithMeNow(stringQuery):
                     return time_greeting(stringQuery)
                 else:
                     indexLevel = random.randint(0, len(tag['response'])-1)
-                    # print(tag['response'][indexLevel])
                     return tag['response'][indexLevel]
