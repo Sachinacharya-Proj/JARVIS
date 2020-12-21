@@ -1,15 +1,15 @@
 # IMPORTING ALL THE ESSENTIAL MODULES HERE
-import pyttsx3 #pip install pyttsx3
-import speech_recognition as sr #pip install speechRecognition
-import datetime # Defaultly Available
-import wikipedia #pip install wikipedia
-import webbrowser # Default
-import os # Default
-import smtplib # Default
-from modules.chatterRob import ChatWithMeNow # Custom Module
-import datefinder # pip install datefinder
-import winsound # pip install winsound or Default
-import modules.weatherForcaster as weatherForcaster # Custom Module
+import pyttsx3
+import speech_recognition as sr
+import datetime
+import wikipedia
+import webbrowser
+import os
+import smtplib
+from modules.chatterRob import ChatWithMeNow
+import datefinder
+import winsound
+import modules.weatherForcaster as weatherForcaster
 import random
 import schedule
 import modules.qrcodeGenerator as qrcodeGenerator
@@ -22,7 +22,6 @@ from tkinter import filedialog
 import imghdr
 
 msg = EmailMessage()
-
 startOkay = 'okay'
 
 try:
@@ -50,7 +49,6 @@ def SetAlarmPlease(name, timeString):
     alarm_minutes = int(alarm_time[3:-3])
     alarm_seconds = int(alarm_time[6:])
     print(alarm_hour,alarm_minutes, alarm_seconds)
-
     while True:
         if alarm_hour == datetime.datetime.now().hour:
             if alarm_minutes == datetime.datetime.now().minute:
@@ -65,42 +63,33 @@ def speak(audio):
 
 def wishMe():
     hour = int(datetime.datetime.now().hour)
-    # print(random.randint(0, len(morning_greetings_array) - 1))
-    # print(morning_greetings_array[0])
     if hour>=0 and hour<12:
         greets = morning_greetings_array[random.randint(0, len(morning_greetings_array) - 1)]
         print(greets)
         speak(str(greets))
-
     elif hour>=12 and hour<18:
         greets = afternoom_greetings_array[random.randint(0, len(afternoom_greetings_array) - 1)]
         print(greets)
         speak(str(greets))
-
     else:
         greets = evening_greetings_array[random.randint(0, len(evening_greetings_array) - 1)]
         print(greets)
         speak(str(greets))
-
     greets = regular_greetings[random.randint(0, len(regular_greetings) - 1)]
     print(greets)
     speak(str(greets))
 
 def takeCommand():
-    #It takes microphone input from the user and returns string output
-
     r = sr.Recognizer()
     with sr.Microphone() as source:
         print("Listening...")
         r.energy_threshold = 1000
         r.pause_threshold = 1
         audio = r.listen(source)
-
     try:
         print("Recognizing...")
         query = r.recognize_google(audio, language='en-in')
         print(f"User said: {query.lower()}\n")
-
     except Exception:
         # print(e)
         print("Say that again please...sir?")
@@ -185,10 +174,7 @@ def goGetDetails():
             return "error"
 
 def speakLittleFreak(query, startOkay):
-    # while True:
-    # query = takeCommand().lower()
     if startOkay == 'okay':
-            # query = query.replace('nitro ', '', 1)
         if 'wikipedia' in query:
             try:
                 speak(f'Searching {query}...')
@@ -237,7 +223,6 @@ def speakLittleFreak(query, startOkay):
         elif query == "view all command":
             queryString = "the command lines are\n1. Wikipedia follow by Subject to fetch data from wikipedia regarding Subject\n2. Opne YoutTube: Open youtube in browser\n3. Stream followed by content to view in Youtube\n4. Search followed by keyword to google it\n5. "
             print(queryString)
-
         elif 'open youtube' in query:
             webbrowser.open("https://www.youtube.com/")
             webbrowser.WindowsDefault()
@@ -259,7 +244,6 @@ def speakLittleFreak(query, startOkay):
             speak(f'Googling {query}')
             print(f'Googling {query}\n')
             webbrowser.open(f"https://www.google.com/search?q={query}")
-
         elif 'open stackoverflow' in query or "open stack overflow" in query:
             try:
                 speak("Opening Stackoverflow")
@@ -284,7 +268,6 @@ def speakLittleFreak(query, startOkay):
         elif 'open code' in query:
             codePath = "C:\\Users\\Dell\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
             os.startfile(codePath)
-
         elif 'open pycharm' in query:
             codePath = "C:\\Program Files\\JetBrains\\PyCharm Community Edition 2020.1.4\\bin\\pycharm64.exe"
             os.startfile(codePath)
@@ -307,7 +290,6 @@ def speakLittleFreak(query, startOkay):
             permission = takeCommand()
             if "okay" in permission or "ok" in permission or "alright" in permission:
                 qrcodeScanner.MainFunc()
-
         elif 'wrap up all' in query or 'close all' in query:
             winsound.Beep(2000, 200)
             hour = int(datetime.datetime.now().hour)
@@ -333,7 +315,6 @@ def speakLittleFreak(query, startOkay):
                     if resultGot != None:
                         speak(resultGot)
                         print(resultGot)
-            # print(ChatWithMeNow(str(query)))
         elif query == "clear screen":
             speak("Clearing Screen")
             os.system("cls")
@@ -358,9 +339,7 @@ def speakLittleFreak(query, startOkay):
                     speak(outGain)
             except Exception:
                 print("Cannot find any results! Nice time")
-
     return True
-
 
 if __name__ == "__main__":
     winsound.Beep(2000, 200)
@@ -387,4 +366,3 @@ if __name__ == "__main__":
             exit()
         else:
             print("JARVIS is in Hibernation, wake him up with command like Hey Jarvis")
-            
