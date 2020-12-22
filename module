@@ -20,6 +20,9 @@ import math
 from email.message import EmailMessage
 from tkinter import filedialog
 import imghdr
+from modules.Send_mail import send_email_smtp
+import colorama
+from colorama import Fore, Back, Style
 
 msg = EmailMessage()
 startOkay = 'okay'
@@ -29,31 +32,57 @@ try:
 except Exception as e:
     os.system("clear")
 
-morning_greetings_array = ['Good morning, Sachin sir!', 'Hello sir, Very good morning', "Good Morming, Sachin Sir, how are you doin'"]
-afternoom_greetings_array = ['Afternoon, Sachin Sir!', "What's Up Sir, Good afternoon", "Nice to see you, again Sir"]
-evening_greetings_array = ['Good evening, Sachin, sir!', "Hope you were having a good time, evening sachin sir"]
-regular_greetings = ["You seems happy sir, today!", "You looks great as always", "I am so happy to hear from you sir", "As always, I am at you service sir"]
+morning_greetings_array = [
+    'Good morning, Sachin sir!',
+    'Hello sir, Very good morning',
+    "Good Morming, Sachin Sir, how are you doin'"
+    ]
+afternoom_greetings_array = [
+    'Afternoon, Sachin Sir!',
+    "What's Up Sir, Good afternoon",
+    "Nice to see you, again Sir"
+    ]
+evening_greetings_array = [
+    'Good evening, Sachin, sir!',
+    "Hope you were having a good time, evening sachin sir"
+    ]
+regular_greetings = [
+    "You seems happy sir, today!",
+    "You looks great as always",
+    "I am so happy to hear from you sir",
+    "As always, I am at you service sir"
+    ]
+wakeingUp_greating = [
+    "I'm awake sir, ready for some work!",
+    "Yes sir, How can I help you?",
+    "I am Refreshed Now with a little Nap",
+    "What a wonderful dream that was, anyway How can I help you sir?",
+    "Your very own Virtaul Assistance is here for you",
+    "Your very own Virtaul Assistance is ready for work"
+    ]
 
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
-# print(voices[1].id)
 engine.setProperty('voice', voices[0].id)
 
 def SetAlarmPlease(name, timeString):
     alarmDate = datefinder.find_dates(timeString)
     for match in alarmDate:
-        print(match)
+        match = match
     match_string = str(match)
     alarm_time = match_string[11:]
     alarm_hour = int(alarm_time[:-6])
     alarm_minutes = int(alarm_time[3:-3])
-    alarm_seconds = int(alarm_time[6:])
-    print(alarm_hour,alarm_minutes, alarm_seconds)
+    # alarm_seconds = int(alarm_time[6:])
+
+    printAndSpeak(f'Alarm Has been set for {match}')
     while True:
         if alarm_hour == datetime.datetime.now().hour:
             if alarm_minutes == datetime.datetime.now().minute:
-                print(f"Alarm Title: {name}")
-                winsound.PlaySound('C:\\Users\\Dell\\Desktop\\Alarm\\alarm.m4a', winsound.SND_LOOP)
+                AskingToPrint('default', f"Alarm Title: {name}")
+                winsound.PlaySound('alarm.m4a', winsound.SND_LOOP)
+                if KeyboardInterrupt == True:
+                    break
             elif alarm_minutes < int(datetime.datetime.now().minute):
                 break
 
@@ -61,117 +90,64 @@ def speak(audio):
     engine.say(audio)
     engine.runAndWait()
 
-def wishMe():
-    hour = int(datetime.datetime.now().hour)
-    if hour>=0 and hour<12:
-        greets = morning_greetings_array[random.randint(0, len(morning_greetings_array) - 1)]
-        print(greets)
-        speak(str(greets))
-    elif hour>=12 and hour<18:
-        greets = afternoom_greetings_array[random.randint(0, len(afternoom_greetings_array) - 1)]
-        print(greets)
-        speak(str(greets))
+def wishMe(codeTime):
+    if codeTime == 0: 
+        hour = int(datetime.datetime.now().hour)
+        if hour>=0 and hour<12:
+            greets = morning_greetings_array[random.randint(0, len(morning_greetings_array) - 1)]
+            printAndSpeak(greets)
+        elif hour>=12 and hour<18:
+            greets = afternoom_greetings_array[random.randint(0, len(afternoom_greetings_array) - 1)]
+            printAndSpeak(greets)
+        else:
+            greets = evening_greetings_array[random.randint(0, len(evening_greetings_array) - 1)]
+            printAndSpeak(greets)
+        greets = regular_greetings[random.randint(0, len(regular_greetings) - 1)]
+        printAndSpeak(greets)
     else:
-        greets = evening_greetings_array[random.randint(0, len(evening_greetings_array) - 1)]
-        print(greets)
-        speak(str(greets))
-    greets = regular_greetings[random.randint(0, len(regular_greetings) - 1)]
-    print(greets)
-    speak(str(greets))
+        greets = wakeingUp_greating[random.randint(0, len(wakeingUp_greating) - 1)]
+        printAndSpeak(greets)
 
 def takeCommand():
     r = sr.Recognizer()
     with sr.Microphone() as source:
-        print("Listening...")
+        print(f"{Fore.GREEN}Listening...{Fore.RESET}")
         r.energy_threshold = 1000
         r.pause_threshold = 1
         audio = r.listen(source)
     try:
         print("Recognizing...")
         query = r.recognize_google(audio, language='en-in')
-        print(f"User said: {query.lower()}\n")
+        print(f"{Fore.BLUE}\nUser said: {query.lower()} {Fore.RESET}\n")
     except Exception:
         # print(e)
-        print("Say that again please...sir?")
+        print(f"{Fore.MAGENTA}Say that again please...sir?{Fore.RESET}")
         return "None"
     return query.lower()
 
-my_email_address =  os.environ.get('useremail') or 'Your Email Address'
-my_email_password = os.environ.get("userpass") or "INPUT YOUR PASSWORD HERE OR CHANGE WHOLE LINE WITH PASSWD"
-
-def sendEmail(message):
-    server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-    server.login(my_email_address, my_email_password)
-    server.send_message(message)
-    server.close()
-
 def printAndSpeak(querystring):
-    print(querystring)
+    # print(f"{Fore.GREEN}{querystring}{Fore.RESET}")
+    AskingToPrint("success", querystring)
     speak(querystring)
+
+def AskingToPrint(color, text):
+    if color == 'danger':
+        print(f"{Fore.RED}{text}{Fore.RESET}")
+    elif color == 'success':
+        print(f"{Fore.GREEN}{text}{Fore.RESET}")
+    elif color == 'warning':
+        print(f"{Fore.MAGENTA}{text}{Fore.RESET}")
+    elif color == 'default':
+        print(f"{Fore.BLUE}{text}{Fore.RESET}")
 
 def shutDownCommandStarted(code):
     speak('Shutting down in')
     while code > 0:
         speak(f"T {code}")
-        print(f"Shutting Down in T-{code}", '\r', end="")
+        print(f"{Fore.RED}Shutting Down in T-{code}{Fore.RESET}", '\r', end="")
         time.sleep(1)
         code -= 1
     os.system('shutdown /p')
-
-def goGetDetails():
-    speak("Do you want to provide Receiver email via manually or with speech")
-    getAnswer = takeCommand()
-    if getAnswer == 'speech' or getAnswer == 'voice' or getAnswer == 'with voice' or getAnswer == 'with voice command' or getAnswer == 'voice command' or getAnswer == 'with speech':
-        speak('Receiver Email Address, sir?')
-        to = takeCommand()
-        to = to.replace(' ', '')
-    else:
-        speak("Then Please provide address manually!")
-        to = input('Receiver Address: ')
-    speak('What is the Subject?')
-    subject = takeCommand()
-    speak("What should I say?")
-    content = takeCommand()
-    printAndSpeak('Do you want to add Attachment?')
-    answer = takeCommand()
-    if answer == 'yes' or answer == 'yup' or answer == 'yep' or answer == 'sure' or answer == 'okay' or answer == 'ok':
-        filearray = filedialog.askopenfilenames()
-        for files in filearray:
-            with open(files, 'rb') as f:
-                file_data = f.read()
-                filetype = imghdr.what(f.name)
-            breakedArray = str(files).split('/')
-            lengthOfArray = len(breakedArray)
-            msg.add_attachment(file_data, maintype='image', subtype=filetype, filename=breakedArray[lengthOfArray - 1])
-    msg['Subject'] = subject
-    msg['From'] = my_email_address
-    msg['To'] = to
-    msg.set_content(content)
-    speak('All okay sir? May I send it now?')
-    askPermisison = takeCommand()
-    if askPermisison == 'send it' or askPermisison == 'send':
-        try:
-            speak('Sending email to {}'.format(to))
-            sendEmail(msg)
-            speak(f"Email has been sent to {to}!")
-            return "success"
-        except Exception as e:
-            print(e)
-            speak('Error Occured! wanna retry?')
-            askYar = takeCommand()
-            if askYar == 'okay' or askYar == 'yes' or askYar == 'yup':
-                goGetDetails()
-            else:
-                printAndSpeak('Email cannot be send!')
-                return "error"
-    else:
-        speak('Message Cancelled, wanna retry?')
-        askYar = takeCommand()
-        if askYar == 'okay' or askYar == 'yes' or askYar == 'yup':
-            goGetDetails()
-        else:
-            printAndSpeak('Send Email Task has been withdrawn!')
-            return "error"
 
 def speakLittleFreak(query, startOkay):
     if startOkay == 'okay':
@@ -183,7 +159,7 @@ def speakLittleFreak(query, startOkay):
                 speak("According to Wikipedia")
                 printAndSpeak(results)
             except Exception:
-                print("Error Occured! Sorry for Inconvinience")
+                print(f"{Fore.RED}Error Occured! Sorry for Inconvinience")
                 speak("Sorry, sir! Something unexcepted happened")
         elif "generate qr code" in query or "create qr code" in query or "generate bar code" in query or "create bar code" in query or "create barcode" in query or "generate barcode" in query:
             speak("You wanna Generate BAR CODE or QR CODE?")
@@ -193,7 +169,7 @@ def speakLittleFreak(query, startOkay):
                 string = takeCommand()
                 speak("Name for Output file?")
                 nameFile = takeCommand()
-                print(f"It will be coded to QR CODE: {string}")
+                print(f"{Fore.MAGENTA}It will be coded to QR CODE: {string}{Fore.RESET}")
                 speak(f"String {string} will be converted to QR CODE, please check Folder Codes")
                 result = qrcodeGenerator.CreateQRCode(string, nameFile)
                 if result ==True:
@@ -204,7 +180,7 @@ def speakLittleFreak(query, startOkay):
                 string = takeCommand()
                 speak("Name of Output file")
                 nameFile = takeCommand()
-                print(f"It will be coded to BAR CODE: {string}")
+                print(f"{Fore.MAGENTA}It will be coded to BAR CODE: {string}{Fore.RESET}")
                 speak(f"String {string} will be converted to BAR CODE, please check Folder Codes")
                 result = qrcodeGenerator.BarcodeCreator(string, nameFile)
                 if result ==True:
@@ -212,7 +188,8 @@ def speakLittleFreak(query, startOkay):
         elif query == 'stop listenning' or query == 'stop listening':
             winsound.Beep(2000, 200)
             startOkay = "no way"
-            printAndSpeak('Please, wake me up with command like Hey Jarvis')
+            print(f'{Fore.BLUE}Please, wake me up with command like Hey Jarvis{Fore.RESET}')
+            speak('Please, wake me up with command like Hey Jarvis')
             return False
         elif "morning" in query or "evening" in query or "afternoon" in query or"night" in query:
             resultGot = ChatWithMeNow(query)
@@ -221,8 +198,7 @@ def speakLittleFreak(query, startOkay):
             else:
                 printAndSpeak('Hi, nice to see you, sir!')
         elif query == "view all command":
-            queryString = "the command lines are\n1. Wikipedia follow by Subject to fetch data from wikipedia regarding Subject\n2. Opne YoutTube: Open youtube in browser\n3. Stream followed by content to view in Youtube\n4. Search followed by keyword to google it\n5. "
-            print(queryString)
+            pass
         elif 'open youtube' in query:
             webbrowser.open("https://www.youtube.com/")
             webbrowser.WindowsDefault()
@@ -233,16 +209,14 @@ def speakLittleFreak(query, startOkay):
         elif 'play' in query and 'on youtube' in query:
             query = query.replace('play', '')
             query = query.replace('on youtube', '')
-            speak(f'Playing {query} on YouTube')
-            print(f'Playing {query} on YouTube')
+            printAndSpeak(f'Playing {query} on YouTube')
             pywhatkit.playonyt(query)
         elif 'open' in query and 'devon ke dev' in query:
             speak('Openning Devon ke Dev mahadev')
             webbrowser.open('https://dkdmtv.blogspot.com/2020/05/devon-ke-dev-mahadev-episode-201-to-400.html')
         elif 'search' in query:
             query = query.replace("search", "")
-            speak(f'Googling {query}')
-            print(f'Googling {query}\n')
+            printAndSpeak(f'Googling {query}')
             webbrowser.open(f"https://www.google.com/search?q={query}")
         elif 'open stackoverflow' in query or "open stack overflow" in query:
             try:
@@ -250,7 +224,7 @@ def speakLittleFreak(query, startOkay):
                 webbrowser.open("https://stackoverflow.com/")
                 webbrowser.WindowsDefault()
             except Exception as e:
-                print(f"Error Occured!", format(e))
+                AskingToPrint("success",f"Error Occured!{format(e)}")
         elif 'open' in query and 'github' in query:
             speak('Opening your github projects on web')
             webbrowser.open('https://github.com/Sachinacharya-Proj/')
@@ -262,7 +236,7 @@ def speakLittleFreak(query, startOkay):
                 pass
             else:
                 selected_audio = songs[random.randint(0, len(songs) - 1)]
-            print(selected_audio)
+            print(f"{Fore.YELLOW}selected_audio{Fore.RESET}")
             speak(f"Playing {selected_audio}")
             os.startfile(os.path.join(music_dir, selected_audio))
         elif 'open code' in query:
@@ -275,16 +249,19 @@ def speakLittleFreak(query, startOkay):
             speak("You've executed Shutdown Command, are you sure, Sir?")
             ask = takeCommand()
             if "yes" in ask or "yep" in ask or "yeah" in ask or "yea" in ask or "sure" in ask or "positive" in ask or "damn yeah" in ask or "hell yeah" in query or 'shut it' in query or 'okay' in query:
-                printAndSpeak('Shutting down process is executed')
+                AskingToPrint("warning",'Shutting down process is executed')
+                speak('Shutting down process is executed')
                 shutDownCommandStarted(5)
         elif "set alarm" in query:
-            print("Setting Alarm will pause Services of JARVIS as you wanna take rest")
-            speak("Setting Alarm will pause Services of JARVIS as you wanna take rest")
-            speak("For what is this alarm?")
+            AskingToPrint("warning","Setting Alarm will pause Services of JARVIS if you wanna take Risk")
+            speak("What is the Subject, sir?")
             reason = takeCommand()
-            speak("For what time should I set Alarm for you, sir?")
+            printAndSpeak("For what time should I set Alarm for, sir?")
             time = takeCommand()
-            SetAlarmPlease(reason, time)
+            try:
+                SetAlarmPlease(reason, time)
+            except:
+                printAndSpeak('Alarm Has Been Stopped')
         elif "scan code" in query:
             speak("You will need to end all session if you enter this command")
             permission = takeCommand()
@@ -301,53 +278,107 @@ def speakLittleFreak(query, startOkay):
         elif "let us chat" in query or "let's chat" in query:
             speak("Alright sir, let's chat, I am listening sir!")
             while True:
-                print('You are chatting with me')
-                print("________________________")
+                AskingToPrint("warning",'You are chatting with me\n________________________')
                 takingCommand = takeCommand()
                 if takingCommand == "exit chatting":
-                    print("Nice talks sir!")
+                    AskingToPrint("danger","Nice talks sir!")
                     speak("Nice talks sir!")
-                    print("No more Chatting is going on")
-                    print("_______________________")
+                    AskingToPrint("danger","No more Chatting is going on\n_______________________")
                     break
                 else:
                     resultGot = ChatWithMeNow(takingCommand)
                     if resultGot != None:
-                        speak(resultGot)
-                        print(resultGot)
+                        printAndSpeak(resultGot)
         elif query == "clear screen":
             speak("Clearing Screen")
             os.system("cls")
-        elif 'send email' in query or "send mail" in query or 'sendmail' in query or 'sendemail' in query:
-            goGetDetails()
+        elif query == 'mail' or query == "email" or query == 'send email' or query == 'send a mail' or query == 'send a email' or query == "send mail" or query == 'sendmail' or query == 'sendemail':
+            while True:
+                printAndSpeak('Alright Sir!')
+                printAndSpeak('What is the Subject sir?')
+                subject = takeCommand()
+                while True:
+                    printAndSpeak("Whome you wanna to send to?")
+                    to = takeCommand()
+                    if to == '':
+                        pass
+                    elif to != '':
+                        to = to.replace(' ', '')
+                        printAndSpeak(f"Email {to}")
+                        printAndSpeak('Is this email, right?')
+                        askAgain = takeCommand().lower()
+                        if askAgain == 'yes' or askAgain == 'yep' or askAgain == 'yup' or askAgain == 'yeah' or askAgain == 'sure' or askAgain == 'okay' or askAgain == 'alright':
+                            break
+                        else:
+                            printAndSpeak('Do you want to Type Email manually')
+                            askAgain = takeCommand().lower()
+                            if askAgain == 'yes' or askAgain == 'yep' or askAgain == 'yup' or askAgain == 'yeah' or askAgain == 'sure' or askAgain == 'okay' or askAgain == 'ok' or askAgain == 'alright':
+                                to = input('Enter Email Address: ')
+                                break
+                            else:
+                                pass
+
+                printAndSpeak('What do you wanna say?')
+                body = takeCommand()
+                printAndSpeak('Do you wanna attach any Attachment?')
+                askForPermission = takeCommand().lower()
+                if askForPermission == 'yes' or askForPermission == 'okay' or askForPermission=='ok' or askForPermission == "yep" or askForPermission == "yup" or askForPermission == "sure" or askForPermission == "yeah" or askForPermission == "hell yeah" or askForPermission == "ah":
+                    option = 'y'
+                else:
+                    option = 'n'
+                textDec = "All okay sir, may I send it Now"
+                AskingToPrint('warning', textDec)
+                speak(textDec)
+                askForPermission = takeCommand()
+                if askForPermission == 'send it' or askForPermission == 'send':
+                    send_email_smtp(subject, to, body, option)
+                elif askForPermission == "don't send" or askForPermission == "do not send" or askForPermission == "don't send it" or askForPermission == "do not send it":
+                    pass
+                elif askForPermission == "quit mailing" or askForPermission == "discard mailing":
+                    break
+                elif askForPermission == "change receiver" or askForPermission == "reask receiver":
+                    to = takeCommand()
+                    printAndSpeak('Are we good now?')
+                    permission = takeCommand().lower()
+                    if permission == 'okay' or permission == 'yes':
+                        send_email_smtp(subject, to, body, option)
+                        break
+                    else:
+                        pass
         elif "what" in query or "find me" in query or "what time is it" in query or "what is" in query or "tell me" in query or "what about" in query:
             try:
                 outGain = weatherForcaster.AskForDetails(query)
-                print(outGain)
-                speak(outGain)
+                printAndSpeak(outGain)
             except Exception:
-                print("Returned None")
+                AskingToPrint("danger","Returned None")
                 speak("Sorry sir, Cannot found the required results!")
                 speak("You may need to Update me! Just asking")
-        elif query:
+        elif query.startswith('find') or query.startswith('web') or query.startswith('ping'):
+            if query.startswith('find'):
+                query = query.replace('find', '', 1)
+            elif query.startswith('web'):
+                query = query.replace('web', '', 1)
+            else:
+                query = query.replace('ping', '', 1)
             try:
                 outGain = weatherForcaster.AskForDetails(query)
                 if outGain == e:
-                    print("Error")
+                    AskingToPrint('danger',"Error")
                 else:
                     print(outGain)
                     speak(outGain)
             except Exception:
-                print("Cannot find any results! Nice time")
+                AskingToPrint('danger',"Cannot find any results! Nice time")
     return True
-
+numberOfTime = 0
 if __name__ == "__main__":
     winsound.Beep(2000, 200)
     winsound.Beep(2000, 200)
     while True:
         query = takeCommand().lower()
         if query == 'hey jarvis' or query == 'hey oracle' or query == 'hey nitro' or query == 'hey mark' or query == 'jarvis' or query == 'nitro' or query == 'mark' or query == 'oracle' or query == 'wake up' or query == 'hi jarvis' or query == 'hi nitro' or query == 'hi oracle' or query == 'hi mark':
-            wishMe()
+            wishMe(numberOfTime)
+            numberOfTime = 1
             while True:
                 query = takeCommand().lower()
                 funcReturn = speakLittleFreak(query, startOkay)
@@ -364,5 +395,7 @@ if __name__ == "__main__":
                 speak("Good night sir")
             os.system("cls")
             exit()
+        elif KeyboardInterrupt == True:
+            exit()
         else:
-            print("JARVIS is in Hibernation, wake him up with command like Hey Jarvis")
+            AskingToPrint('danger', "JARVIS is in Hibernation, wake him up with command like Hey Jarvis")
