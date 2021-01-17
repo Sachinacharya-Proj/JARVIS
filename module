@@ -396,7 +396,7 @@ if __name__ == "__main__":
             elif query == 'close all':
                 speak("Packing Up and gettin' outa here")
             elif query == 'your work is done here, jarvis':
-                speak('Thank you sir, I might off to home')
+                speak('Thank you sir, I might off to SSD')
             else:
                 speak('Thank you Very Much')
             if hour > 22:
