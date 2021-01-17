@@ -1,0 +1,13 @@
+pyttsx3
+SpeechRecognition
+wikipedia
+datefinder
+schedule
+pywhatkit
+PyQRCode
+pyzbar
+PyAutoGUI
+opencv-python
+wolframalpha
+colorama
+python-barcode
