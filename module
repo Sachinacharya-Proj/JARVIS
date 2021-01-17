@@ -57,8 +57,8 @@ wakeingUp_greating = [
     "Yes sir, How can I help you?",
     "I am Refreshed Now with a little Nap",
     "What a wonderful dream that was, anyway How can I help you sir?",
-    "Your very own Virtaul Assistance is here for you",
-    "Your very own Virtaul Assistance is ready for work"
+    "Your very own Virtual Assistance is here for you",
+    "Your very own Virtual Assistance is ready for work"
     ]
 
 engine = pyttsx3.init('sapi5')
@@ -117,7 +117,7 @@ def takeCommand():
         audio = r.listen(source)
     try:
         print("Recognizing...")
-        query = r.recognize_google(audio, language='en-in')
+        query = r.recognize_google(audio, language='en-us')
         print(f"{Fore.BLUE}\nUser said: {query.lower()} {Fore.RESET}\n")
     except Exception:
         # print(e)
@@ -185,11 +185,11 @@ def speakLittleFreak(query, startOkay):
                 result = qrcodeGenerator.BarcodeCreator(string, nameFile)
                 if result ==True:
                     speak("BAR CODE IS SUCCESSFULLY GENERATED")
-        elif query == 'stop listenning' or query == 'stop listening':
+        elif query == 'stop listenning' or query == 'stop listening' or query == 'take a nap' or query == 'take nap' or "why don't you take a nap jarvis" in query:
             winsound.Beep(2000, 200)
             startOkay = "no way"
             print(f'{Fore.BLUE}Please, wake me up with command like Hey Jarvis{Fore.RESET}')
-            speak('Please, wake me up with command like Hey Jarvis')
+            speak("Thank you sir, I won't be bothering you, until you call me up")
             return False
         elif "morning" in query or "evening" in query or "afternoon" in query or"night" in query:
             resultGot = ChatWithMeNow(query)
@@ -386,11 +386,17 @@ if __name__ == "__main__":
                     continue
                 else:
                     break
-
-        elif query == 'go to sleep':
+        elif query == 'go to sleep' or query == 'goto sleep' or query == 'close all' or query == 'your work is done here, jarvis':
             winsound.Beep(2000, 200)
             hour = int(datetime.datetime.now().hour)
-            speak("Going to sleep, hear you soon!!!")
+            if query == 'go to sleep' or query == 'goto sleep':
+                speak("Going to sleep, hear you soon, sir!!!")
+            elif query == 'close all':
+                speak("Packing Up and gettin' outa here")
+            elif query == 'your work is done here, jarvis':
+                speak('Thank you sir, I might off to home')
+            else:
+                speak('Thank you Very Much')
             if hour > 22:
                 speak("Good night sir")
             os.system("cls")
