@@ -386,7 +386,7 @@ if __name__ == "__main__":
                     continue
                 else:
                     break
-        elif query == 'go to sleep' or query == 'goto sleep' or query == 'close all' or query == 'your work is done here, jarvis':
+        elif query == 'go to sleep' or query == 'goto sleep' or query == 'close all' or query == 'close up' or query == 'your work is done here jarvis':
             winsound.Beep(2000, 200)
             hour = int(datetime.datetime.now().hour)
             if query == 'go to sleep' or query == 'goto sleep':
