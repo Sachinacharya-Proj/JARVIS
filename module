@@ -5,10 +5,11 @@ import datetime
 import wikipedia
 import webbrowser
 import os
+from os import system as stm
 import smtplib
 from modules.chatterRob import ChatWithMeNow
 import datefinder
-import winsound
+import pathlib
 import modules.weatherForcaster as weatherForcaster
 import random
 import schedule
@@ -23,16 +24,26 @@ import imghdr
 from modules.Send_mail import send_email_smtp
 import colorama
 from colorama import Fore, Back, Style
+import platform
+import subprocess
+
+osType = platform.system()
+userprofile = os.environ.get('USERPROFILE')
+
+if osType == 'Windows':
+    import winsound
+else:
+    from playsound import playsound
 
 colorama.init(autoreset=True) # Can be doned to ignore Fore.RESET after each line-end
 
 msg = EmailMessage()
 startOkay = 'okay'
 
-try:
-    os.system("cls")
-except Exception as e:
-    os.system("clear")
+if osType == 'Windows':
+    stm('cls')
+else:
+    stm('clear')
 
 morning_greetings_array = [
     'Good morning, Sachin sir!',
@@ -82,7 +93,11 @@ def SetAlarmPlease(name, timeString):
         if alarm_hour == datetime.datetime.now().hour:
             if alarm_minutes == datetime.datetime.now().minute:
                 AskingToPrint('default', f"Alarm Title: {name}")
-                winsound.PlaySound('alarm.m4a', winsound.SND_LOOP)
+                absolutePath = pathlib.Path(__file__).parent.absolute()
+                if osType == 'Windows':
+                    winsound.PlaySound(f'{absolutePath}\\alarm.m4a')
+                else:
+                    playsound(f'{absolutePath}\\alarm.m4a')
                 if KeyboardInterrupt == True:
                     break
             elif alarm_minutes < int(datetime.datetime.now().minute):
@@ -149,7 +164,10 @@ def shutDownCommandStarted(code):
         print(f"{Fore.RED}Shutting Down in T-{code}{Fore.RESET}", '\r', end="")
         time.sleep(1)
         code -= 1
-    os.system('shutdown /p')
+    if osType == 'Windows':
+        os.system('shutdown /p')
+    else:
+        os.system('shutdown -P 0')
 
 def speakLittleFreak(query, startOkay):
     if startOkay == 'okay':
@@ -188,7 +206,10 @@ def speakLittleFreak(query, startOkay):
                 if result ==True:
                     speak("BAR CODE IS SUCCESSFULLY GENERATED")
         elif query == 'stop listenning' or query == 'stop listening' or query == 'take a nap' or query == 'take nap' or "why don't you take a nap jarvis" in query:
-            winsound.Beep(2000, 200)
+            if osType == 'Windows':
+                winsound.Beep(2000, 200)
+            else:
+                print('\a')
             startOkay = "no way"
             print(f'{Fore.BLUE}Please, wake me up with command like Hey Jarvis{Fore.RESET}')
             speak("Thank you sir, I won't be bothering you, until you call me up")
@@ -202,8 +223,11 @@ def speakLittleFreak(query, startOkay):
         elif query == "view all command":
             pass
         elif 'open youtube' in query:
-            webbrowser.open("https://www.youtube.com/")
-            webbrowser.WindowsDefault()
+            if osType == 'Windows':
+                webbrowser.open("https://www.youtube.com/")
+                webbrowser.WindowsDefault()
+            else:
+                webbrowser.open("https://www.youtube.com/")
         elif 'stream' in query:
             query = query.replace("stream", "")
             printAndSpeak(f'Searching YouTube for {query}')
@@ -224,29 +248,51 @@ def speakLittleFreak(query, startOkay):
             try:
                 speak("Opening Stackoverflow")
                 webbrowser.open("https://stackoverflow.com/")
-                webbrowser.WindowsDefault()
+                if osType == 'Windows':
+                    webbrowser.WindowsDefault()
             except Exception as e:
                 AskingToPrint("success",f"Error Occured!{format(e)}")
         elif 'open' in query and 'github' in query:
             speak('Opening your github projects on web')
-            webbrowser.open('https://github.com/Sachinacharya-Proj/')
+            webbrowser.open('https://github.com/Sachinacharya-Project/')
         elif query == 'play music' or query == "play musics":
-            music_dir = 'C:\\Users\\Dell\\Music'
+            music_dir = f'{userprofile}\\Music'
             songs = os.listdir(music_dir)
-            selected_audio = songs[random.randint(0, len(songs) - 1)]
-            if ".mp3" in selected_audio or 'm4a' in selected_audio:
-                pass
+            is_there_music = False
+            for item in songs:
+                if item.endswith(".mp3") or item.endswith('m4a'):
+                    is_there_music = True
+                    break
+            if is_there_music:
+                while True:
+                    selected_audio = songs[random.randint(0, len(songs) - 1)]
+                    if selected_audio.endswith(".mp3") or selected_audio.endswith('m4a'):
+                        break
+                print(f"{Fore.YELLOW}selected_audio: {selected_audio}{Fore.RESET}")
+                speak(f"Playing {selected_audio}")
+                actualMusic = os.path.join(music_dir, selected_audio)
+                if osType == 'Windows':
+                    os.startfile(actualMusic)
+                else:
+                    subprocess.call(['open', actualMusic])
             else:
-                selected_audio = songs[random.randint(0, len(songs) - 1)]
-            print(f"{Fore.YELLOW}selected_audio{Fore.RESET}")
-            speak(f"Playing {selected_audio}")
-            os.startfile(os.path.join(music_dir, selected_audio))
+                printAndSpeak('Cannot Found any Music Files, Please Change Directory for Musics')
         elif 'open code' in query:
-            codePath = "C:\\Users\\Dell\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
-            os.startfile(codePath)
+            if osType == 'Windows':
+                codePath = f"{userprofile}\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
+                os.startfile(codePath)
+            else:
+                speak('This Feature is not available for now')
+                print('Try Open Code Here if you have it installed')
+        elif 'open code here':
+            os.system('code .')
+
         elif 'open pycharm' in query:
-            codePath = "C:\\Program Files\\JetBrains\\PyCharm Community Edition 2020.1.4\\bin\\pycharm64.exe"
-            os.startfile(codePath)
+            if osType == 'Windows':
+                codePath = "C:\\Program Files\\JetBrains\\PyCharm Community Edition 2020.1.4\\bin\\pycharm64.exe"
+                os.startfile(codePath)
+            else:
+                printAndSpeak('This Feature is not available for now')
         elif query == "turn off the computer" or query == "shutdown the computer" or query == "initiate shutdown command" or query == "shutdown my device" or query == "run shutdown command":
             speak("You've executed Shutdown Command, are you sure, Sir?")
             ask = takeCommand()
@@ -270,12 +316,18 @@ def speakLittleFreak(query, startOkay):
             if "okay" in permission or "ok" in permission or "alright" in permission:
                 qrcodeScanner.MainFunc()
         elif 'wrap up all' in query or 'close all' in query:
-            winsound.Beep(2000, 200)
+            if osType=='Windows':
+                winsound.Beep(2000, 200)
+            else:
+                print('\a')
             hour = int(datetime.datetime.now().hour)
             speak("Closing all session including current one")
             if hour > 22:
                 speak("Good night sir")
-            os.system("cls")
+            if osType == 'Windows':
+                os.system("cls")
+            else:
+                os.system('clear')
             exit()
         elif "let us chat" in query or "let's chat" in query:
             speak("Alright sir, let's chat, I am listening sir!")
@@ -293,7 +345,10 @@ def speakLittleFreak(query, startOkay):
                         printAndSpeak(resultGot)
         elif query == "clear screen":
             speak("Clearing Screen")
-            os.system("cls")
+            if osType == 'Windows':
+                os.system("cls")
+            else:
+                os.system('clear')
         elif query == 'mail' or query == "email" or query == 'send email' or query == 'send a mail' or query == 'send a email' or query == "send mail" or query == 'sendmail' or query == 'sendemail':
             while True:
                 printAndSpeak('Alright Sir!')
@@ -374,8 +429,12 @@ def speakLittleFreak(query, startOkay):
     return True
 numberOfTime = 0
 if __name__ == "__main__":
-    winsound.Beep(2000, 200)
-    winsound.Beep(2000, 200)
+    if osType == 'Windows':
+        winsound.Beep(2000, 200)
+        winsound.Beep(2000, 200)
+    else:
+        print('\a')
+        print('\a')
     while True:
         query = takeCommand().lower()
         if query == 'hey jarvis' or query == 'hey oracle' or query == 'hey nitro' or query == 'hey mark' or query == 'jarvis' or query == 'nitro' or query == 'mark' or query == 'oracle' or query == 'wake up' or query == 'hi jarvis' or query == 'hi nitro' or query == 'hi oracle' or query == 'hi mark':
@@ -388,12 +447,15 @@ if __name__ == "__main__":
                     continue
                 else:
                     break
-        elif query == 'go to sleep' or query == 'goto sleep' or query == 'close all' or query == 'close up' or query == 'your work is done here jarvis':
-            winsound.Beep(2000, 200)
+        elif query == 'go to sleep' or query=='pack up' or query == 'goto sleep' or query == 'close all' or query == 'close up' or query == 'your work is done here jarvis':
+            if osType == 'Windows':
+                winsound.Beep(2000, 200)
+            else:
+                print('\a')
             hour = int(datetime.datetime.now().hour)
             if query == 'go to sleep' or query == 'goto sleep':
                 speak("Going to sleep, hear you soon, sir!!!")
-            elif query == 'close all':
+            elif query == 'close all' or query == 'pack up' or query == 'close up':
                 speak("Packing Up and gettin' outa here")
             elif query == 'your work is done here, jarvis':
                 speak('Thank you sir, I might off to SSD')
@@ -401,7 +463,10 @@ if __name__ == "__main__":
                 speak('Thank you Very Much')
             if hour > 22:
                 speak("Good night sir")
-            os.system("cls")
+            if osType == 'Windows':
+                os.system("cls")
+            else:
+                os.system('clear')
             exit()
         elif KeyboardInterrupt == True:
             exit()

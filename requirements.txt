@@ -10,3 +10,4 @@ PyAutoGUI==0.9.50
 opencv-python==4.4.0.44
 wolframalpha==4.0.0
 colorama==0.4.3
+playsound==1.2.2

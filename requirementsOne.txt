@@ -11,3 +11,4 @@ opencv-python
 wolframalpha
 colorama
 python-barcode
+playsound
