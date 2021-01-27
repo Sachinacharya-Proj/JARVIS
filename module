@@ -26,7 +26,7 @@ import colorama
 from colorama import Fore, Back, Style
 import platform
 import subprocess
-
+from modules.music_downloader import download
 osType = platform.system()
 userprofile = os.environ.get('USERPROFILE')
 
@@ -168,10 +168,30 @@ def shutDownCommandStarted(code):
         os.system('shutdown /p')
     else:
         os.system('shutdown -P 0')
+directoryMusic = os.path.join(userprofile, "Music")
+def generateMusicDirectory():
+    file = open("musics.txt", "w")
+    walkedDir = os.walk(directoryMusic)
+    for root, _, contents in walkedDir:
+        for item in contents:
+            if item.endswith('.mp3') or item.endswith('.m4a'):
+                file.write(root+"\\"+item+"\n")
+    file.close()
 
+def chooseMusics():
+    try:
+        file = open("musics.txt", "r")
+    except FileNotFoundError:
+        print("File Not Created")
+    lines = file.readlines()
+    randomInt = random.randint(0, len(lines)-1)
+    winnerDirectory = lines[randomInt].replace('/', '\\').replace("\n", "")
+    file.close()
+    return winnerDirectory
+queued = []
 def speakLittleFreak(query, startOkay):
     if startOkay == 'okay':
-        if 'wikipedia' in query:
+        if query.startswith("wikipedia"):
             try:
                 speak(f'Searching {query}...')
                 query = query.replace("wikipedia", "")
@@ -228,11 +248,11 @@ def speakLittleFreak(query, startOkay):
                 webbrowser.WindowsDefault()
             else:
                 webbrowser.open("https://www.youtube.com/")
-        elif 'stream' in query:
+        elif query.startswith('stream'):
             query = query.replace("stream", "")
             printAndSpeak(f'Searching YouTube for {query}')
             webbrowser.open(f"https://www.youtube.com/results?search_query={query}")
-        elif 'play' in query and 'on youtube' in query:
+        elif query.startswith('play') and 'on youtube' in query:
             query = query.replace('play', '')
             query = query.replace('on youtube', '')
             printAndSpeak(f'Playing {query} on YouTube')
@@ -240,7 +260,7 @@ def speakLittleFreak(query, startOkay):
         elif 'open' in query and 'devon ke dev' in query:
             speak('Openning Devon ke Dev mahadev')
             webbrowser.open('https://dkdmtv.blogspot.com/2020/05/devon-ke-dev-mahadev-episode-201-to-400.html')
-        elif 'search' in query:
+        elif query.startswith('search'):
             query = query.replace("search", "")
             printAndSpeak(f'Googling {query}')
             webbrowser.open(f"https://www.google.com/search?q={query}")
@@ -256,41 +276,49 @@ def speakLittleFreak(query, startOkay):
             speak('Opening your github projects on web')
             webbrowser.open('https://github.com/Sachinacharya-Project/')
         elif query == 'play music' or query == "play musics":
-            music_dir = f'{userprofile}\\Music'
-            songs = os.listdir(music_dir)
-            is_there_music = False
-            for item in songs:
-                if item.endswith(".mp3") or item.endswith('m4a'):
-                    is_there_music = True
-                    break
-            if is_there_music:
-                while True:
-                    selected_audio = songs[random.randint(0, len(songs) - 1)]
-                    if selected_audio.endswith(".mp3") or selected_audio.endswith('m4a'):
-                        break
-                print(f"{Fore.YELLOW}selected_audio: {selected_audio}{Fore.RESET}")
-                speak(f"Playing {selected_audio}")
-                actualMusic = os.path.join(music_dir, selected_audio)
-                if osType == 'Windows':
-                    os.startfile(actualMusic)
-                else:
-                    subprocess.call(['open', actualMusic])
+            if osType =="Windows":
+                music = chooseMusics()
+                try:
+                    os.startfile(music)
+                except FileNotFoundError:
+                    printAndSpeak("File Cannot be Found, Wanna Scan Directory?")
+                    ask = takeCommand().lower()
+                    if ask == 'scan':
+                        generateMusicDirectory()
+                    elif ask == "later" or ask == "letter" or ask == "latter":
+                        queued.append("musics")
+                    else:
+                        printAndSpeak("Alright, sir!")
             else:
-                printAndSpeak('Cannot Found any Music Files, Please Change Directory for Musics')
+                printAndSpeak("Sorry, This Feature is not available for Unix System")
         elif 'open code' in query:
             if osType == 'Windows':
                 codePath = f"{userprofile}\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
-                os.startfile(codePath)
+                try:
+                    os.startfile(codePath)
+                except:
+                    AskingToPrint("danger", "Program Not Found")
             else:
                 speak('This Feature is not available for now')
                 print('Try Open Code Here if you have it installed')
         elif 'open code here':
             os.system('code .')
-
+        elif query == 'download video' or query == 'download audio' or query == 'download music':
+            speak("What would be the Title, sir?")
+            ask = takeCommand()
+            typeForm = ""
+            if query == 'download video':
+                typeForm='video'
+            else:
+                typeForm='audio'
+            download(ask, typeForm)
         elif 'open pycharm' in query:
             if osType == 'Windows':
                 codePath = "C:\\Program Files\\JetBrains\\PyCharm Community Edition 2020.1.4\\bin\\pycharm64.exe"
-                os.startfile(codePath)
+                try:
+                    os.startfile(codePath)
+                except:
+                    AskingToPrint("danger", "Cannot found the file")
             else:
                 printAndSpeak('This Feature is not available for now')
         elif query == "turn off the computer" or query == "shutdown the computer" or query == "initiate shutdown command" or query == "shutdown my device" or query == "run shutdown command":
@@ -315,7 +343,14 @@ def speakLittleFreak(query, startOkay):
             permission = takeCommand()
             if "okay" in permission or "ok" in permission or "alright" in permission:
                 qrcodeScanner.MainFunc()
-        elif 'wrap up all' in query or 'close all' in query:
+        # Not Working
+        elif query == 'wrap up all' or query == 'close all':
+            if len(queued) > 0:
+                printAndSpeak("Ruuning Queued Tasks")
+                for task in queued:
+                    if task == 'musics':
+                        printAndSpeak("Scanning for Musics")
+                        generateMusicDirectory()
             if osType=='Windows':
                 winsound.Beep(2000, 200)
             else:
@@ -329,6 +364,7 @@ def speakLittleFreak(query, startOkay):
             else:
                 os.system('clear')
             exit()
+        # Not Working
         elif "let us chat" in query or "let's chat" in query:
             speak("Alright sir, let's chat, I am listening sir!")
             while True:
@@ -343,12 +379,15 @@ def speakLittleFreak(query, startOkay):
                     resultGot = ChatWithMeNow(takingCommand)
                     if resultGot != None:
                         printAndSpeak(resultGot)
+
+        # Not working
         elif query == "clear screen":
             speak("Clearing Screen")
             if osType == 'Windows':
                 os.system("cls")
             else:
                 os.system('clear')
+        # Not working
         elif query == 'mail' or query == "email" or query == 'send email' or query == 'send a mail' or query == 'send a email' or query == "send mail" or query == 'sendmail' or query == 'sendemail':
             while True:
                 printAndSpeak('Alright Sir!')
