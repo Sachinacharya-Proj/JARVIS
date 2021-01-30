@@ -301,7 +301,7 @@ def speakLittleFreak(query, startOkay):
             else:
                 speak('This Feature is not available for now')
                 print('Try Open Code Here if you have it installed')
-        elif 'open code here':
+        elif query == 'open code here':
             os.system('code .')
         elif query == 'download video' or query == 'download audio' or query == 'download music':
             speak("What would be the Title, sir?")
@@ -311,6 +311,7 @@ def speakLittleFreak(query, startOkay):
                 typeForm='video'
             else:
                 typeForm='audio'
+            printAndSpeak(f"Downloading {ask} in {typeForm} Format")
             download(ask, typeForm)
         elif 'open pycharm' in query:
             if osType == 'Windows':

@@ -1,6 +1,7 @@
 from pytube import YouTube
 import os
 import requests
+from pytube.cli import on_progress
 
 username = os.environ.get("USERPROFILE")
 
@@ -26,15 +27,21 @@ def rename(direc):
     os.rename(source, path)
 def download(topic, asking):
     url = play(topic)
-    ytd = YouTube(url)
+    ytd = YouTube(url, on_progress_callback=on_progress)
     if asking == 'audio':
         title = ytd.title
         print("Downloading Audio {}.mp3".format(title))
-        cb = ytd.streams.get_audio_only().download(f"{username}/Music")
+        try:
+            cb = ytd.streams.get_audio_only().download(f"{username}/Music")
+        except ConnectionResetError:
+            print("Audio cannot be downloaded=> Connection has been reset")
         ytd.register_on_complete_callback(rename(cb))
     elif asking == 'video':
         print("Downloading Video {}.mp4".format(ytd.title))
-        ytd.streams.get_highest_resolution().download(f"{username}/Videos")
+        try:
+            ytd.streams.get_highest_resolution().download(f"{username}/Videos")
+        except:
+            print("Video cannot be downloaded=>Connection reset")
     else:
         print("Invalid Argument")
     print("Download is Completed Successful")
