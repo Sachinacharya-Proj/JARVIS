@@ -406,10 +406,13 @@ def speakLittleFreak(query, startOkay):
                             getArray.append((lst[0], lst[1]))
                     givenEmail = ""
                     if len(getArray) > 0:
-                            printAndSpeak("More than one data found, Please Provide Right one!")
-                            i=0
+                            printAndSpeak("More than one data found with name {}, Please Provide Right one!".format(getname))
+                            i=65
                             for cont in getArray:
-                                print("{}) Name: {} and Email: {}".format(i+1, cont[0], cont[1]))
+                                print("{}) {}".format(i+1, cont[1]))
+                                i = i+1
+                            getIndex = int(takeCommand().lower())
+                            givenEmail = getArray[getIndex][1]
                     elif len(getArray) == 1:
                         givenEmail = getArray[0][0]
                     else:
