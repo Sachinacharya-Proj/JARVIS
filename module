@@ -27,6 +27,7 @@ from colorama import Fore, Back, Style
 import platform
 import subprocess
 from modules.music_downloader import download
+# from modules.emailsList import findemails
 osType = platform.system()
 userprofile = os.environ.get('USERPROFILE')
 
@@ -95,9 +96,9 @@ def SetAlarmPlease(name, timeString):
                 AskingToPrint('default', f"Alarm Title: {name}")
                 absolutePath = pathlib.Path(__file__).parent.absolute()
                 if osType == 'Windows':
-                    winsound.PlaySound(f'{absolutePath}\\alarm.m4a')
+                    winsound.PlaySound(f'{absolutePath}\\Data\\alarm.m4a')
                 else:
-                    playsound(f'{absolutePath}\\alarm.m4a')
+                    playsound(f'{absolutePath}\\Data\\alarm.m4a')
                 if KeyboardInterrupt == True:
                     break
             elif alarm_minutes < int(datetime.datetime.now().minute):
@@ -170,7 +171,7 @@ def shutDownCommandStarted(code):
         os.system('shutdown -P 0')
 directoryMusic = os.path.join(userprofile, "Music")
 def generateMusicDirectory():
-    file = open("musics.txt", "w")
+    file = open("Data\\musics.txt", "w")
     walkedDir = os.walk(directoryMusic)
     for root, _, contents in walkedDir:
         for item in contents:
@@ -180,7 +181,7 @@ def generateMusicDirectory():
 
 def chooseMusics():
     try:
-        file = open("musics.txt", "r")
+        file = open("Data\\musics.txt", "r")
     except FileNotFoundError:
         print("File Not Created")
     lines = file.readlines()
@@ -391,57 +392,30 @@ def speakLittleFreak(query, startOkay):
         # Not working
         elif query == 'mail' or query == "email" or query == 'send email' or query == 'send a mail' or query == 'send a email' or query == "send mail" or query == 'sendmail' or query == 'sendemail':
             while True:
-                printAndSpeak('Alright Sir!')
-                printAndSpeak('What is the Subject sir?')
-                subject = takeCommand()
-                while True:
-                    printAndSpeak("Whome you wanna to send to?")
-                    to = takeCommand()
-                    if to == '':
-                        pass
-                    elif to != '':
-                        to = to.replace(' ', '')
-                        printAndSpeak(f"Email {to}")
-                        printAndSpeak('Is this email, right?')
-                        askAgain = takeCommand().lower()
-                        if askAgain == 'yes' or askAgain == 'yep' or askAgain == 'yup' or askAgain == 'yeah' or askAgain == 'sure' or askAgain == 'okay' or askAgain == 'alright':
-                            break
-                        else:
-                            printAndSpeak('Do you want to Type Email manually')
-                            askAgain = takeCommand().lower()
-                            if askAgain == 'yes' or askAgain == 'yep' or askAgain == 'yup' or askAgain == 'yeah' or askAgain == 'sure' or askAgain == 'okay' or askAgain == 'ok' or askAgain == 'alright':
-                                to = input('Enter Email Address: ')
-                                break
-                            else:
-                                pass
-
-                printAndSpeak('What do you wanna say?')
-                body = takeCommand()
-                printAndSpeak('Do you wanna attach any Attachment?')
-                askForPermission = takeCommand().lower()
-                if askForPermission == 'yes' or askForPermission == 'okay' or askForPermission=='ok' or askForPermission == "yep" or askForPermission == "yup" or askForPermission == "sure" or askForPermission == "yeah" or askForPermission == "hell yeah" or askForPermission == "ah":
-                    option = 'y'
-                else:
-                    option = 'n'
-                textDec = "All okay sir, may I send it Now"
-                AskingToPrint('warning', textDec)
-                speak(textDec)
-                askForPermission = takeCommand()
-                if askForPermission == 'send it' or askForPermission == 'send':
-                    send_email_smtp(subject, to, body, option)
-                elif askForPermission == "don't send" or askForPermission == "do not send" or askForPermission == "don't send it" or askForPermission == "do not send it":
-                    pass
-                elif askForPermission == "quit mailing" or askForPermission == "discard mailing":
+                printAndSpeak("Alright Sir")
+                printAndSpeak("Whome you wanna send to?")
+                getname = takeCommand().lower()
+                if getname == 'abort' or getname == "cancel" or getname == "cancle" or getname == "don't send" or getname == "do not send":
                     break
-                elif askForPermission == "change receiver" or askForPermission == "reask receiver":
-                    to = takeCommand()
-                    printAndSpeak('Are we good now?')
-                    permission = takeCommand().lower()
-                    if permission == 'okay' or permission == 'yes':
-                        send_email_smtp(subject, to, body, option)
-                        break
+                else:
+                    emailList = open("Data\\emailer.txt", "r")
+                    getArray = []
+                    for lst in emailList:
+                        lst = lst.split("|")
+                        if getname in lst[0].lower():
+                            getArray.append((lst[0], lst[1]))
+                    givenEmail = ""
+                    if len(getArray) > 0:
+                            printAndSpeak("More than one data found, Please Provide Right one!")
+                            i=0
+                            for cont in getArray:
+                                print("{}) Name: {} and Email: {}".format(i+1, cont[0], cont[1]))
+                    elif len(getArray) == 1:
+                        givenEmail = getArray[0][0]
                     else:
-                        pass
+                        AskingToPrint("danger","You Have No User with Given Name, sir")
+                        printAndSpeak("Do you wanna add HIM")
+                    print(givenEmail)
         elif "what" in query or "find me" in query or "what time is it" in query or "what is" in query or "tell me" in query or "what about" in query:
             try:
                 outGain = weatherForcaster.AskForDetails(query)
