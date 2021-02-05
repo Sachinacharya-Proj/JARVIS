@@ -9,8 +9,8 @@ Installing Requirements
 ````
 pip install -r requirements.txt
 ````
-*if above *__Requirements.txt__* didn't work, use one in data folder *__requirementsOne.txt__
-*After all done*
+_if above __Requirements.txt__ didn't work, use one in data folder __requirementsOne.txt__
+After all done_
 ````
 python module or Double click on jarvis.exe or jarvisAI.bat
 ````
