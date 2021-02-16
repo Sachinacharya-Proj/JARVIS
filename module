@@ -260,7 +260,7 @@ def speakLittleFreak(query, startOkay):
                 AskingToPrint("success",f"Error Occured!{format(e)}")
         elif 'open' in query and 'github' in query:
             speak('Opening your github projects on web')
-            webbrowser.open('https://github.com/Sachinacharya-Project/')
+            webbrowser.open('https://github.com/Sachinacharya-Project?tab=repositories')
         elif query == 'play music' or query == "play musics":
             printAndSpeak(music_player.play())
         elif query == 'pause music':
