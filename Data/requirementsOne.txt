@@ -12,3 +12,4 @@ wolframalpha
 colorama
 python-barcode
 playsound
+python-vlc

@@ -11,3 +11,4 @@ opencv-python==4.4.0.44
 wolframalpha==4.0.0
 colorama==0.4.3
 playsound==1.2.2
+python-vlc==3.0.11115

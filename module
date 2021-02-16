@@ -27,6 +27,7 @@ from colorama import Fore, Back, Style
 import platform
 import subprocess
 from modules.music_downloader import download
+from modules.MusicPlayer import MusicPlayer
 # from modules.emailsList import findemails
 osType = platform.system()
 userprofile = os.environ.get('USERPROFILE')
@@ -169,27 +170,11 @@ def shutDownCommandStarted(code):
         os.system('shutdown /p')
     else:
         os.system('shutdown -P 0')
-directoryMusic = os.path.join(userprofile, "Music")
-def generateMusicDirectory():
-    file = open("Data\\musics.txt", "w")
-    walkedDir = os.walk(directoryMusic)
-    for root, _, contents in walkedDir:
-        for item in contents:
-            if item.endswith('.mp3') or item.endswith('.m4a'):
-                file.write(root+"\\"+item+"\n")
-    file.close()
 
-def chooseMusics():
-    try:
-        file = open("Data\\musics.txt", "r")
-    except FileNotFoundError:
-        print("File Not Created")
-    lines = file.readlines()
-    randomInt = random.randint(0, len(lines)-1)
-    winnerDirectory = lines[randomInt].replace('/', '\\').replace("\n", "")
-    file.close()
-    return winnerDirectory
 queued = []
+
+music_player = MusicPlayer()
+
 def speakLittleFreak(query, startOkay):
     if startOkay == 'okay':
         if query.startswith("wikipedia"):
@@ -277,21 +262,23 @@ def speakLittleFreak(query, startOkay):
             speak('Opening your github projects on web')
             webbrowser.open('https://github.com/Sachinacharya-Project/')
         elif query == 'play music' or query == "play musics":
-            if osType =="Windows":
-                music = chooseMusics()
-                try:
-                    os.startfile(music)
-                except FileNotFoundError:
-                    printAndSpeak("File Cannot be Found, Wanna Scan Directory?")
-                    ask = takeCommand().lower()
-                    if ask == 'scan':
-                        generateMusicDirectory()
-                    elif ask == "later" or ask == "letter" or ask == "latter":
-                        queued.append("musics")
-                    else:
-                        printAndSpeak("Alright, sir!")
-            else:
-                printAndSpeak("Sorry, This Feature is not available for Unix System")
+            printAndSpeak(music_player.play())
+        elif query == 'pause music':
+            printAndSpeak(music_player.pause())
+        elif query == 'stop music':
+            printAndSpeak(music_player.stop())
+        elif query == 'change music':
+            printAndSpeak(music_player.change())
+        elif query == 'play next music':
+            printAndSpeak(music_player.next())
+        elif query == 'play previous music':
+            printAndSpeak(music_player.prev())
+        elif query == 'turn down the volume' or query == 'turn down volume':
+            printAndSpeak(music_player.down_volume())
+        elif query == 'turn up the volume' or query == 'turn up volume' or query == 'lower the sound' or query == 'lower sound':
+            printAndSpeak(music_player.up_volume())
+        elif query == 'mute audio' or query == 'unmute audio':
+            printAndSpeak(music_player.muteUnmute())
         elif 'open code' in query:
             if osType == 'Windows':
                 codePath = f"{userprofile}\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
@@ -352,7 +339,7 @@ def speakLittleFreak(query, startOkay):
                 for task in queued:
                     if task == 'musics':
                         printAndSpeak("Scanning for Musics")
-                        generateMusicDirectory()
+                        # generateMusicDirectory()
             if osType=='Windows':
                 winsound.Beep(2000, 200)
             else:
