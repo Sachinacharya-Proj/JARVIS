@@ -43,6 +43,7 @@ class MusicPlayer():
     def __init__(self):
         self.data_list = str(chooseMusics('')).split('*')
         self.music = self.data_list[0]
+        self.part_music = str(self.music).split('\\')[-1]
         self.data = MediaPlayer(self.music)
         self.constant = 0
     def running(self):
@@ -53,7 +54,7 @@ class MusicPlayer():
     def play(self):
         self.data.play()
         time.sleep(1)
-        return f"{self.music} is being played"
+        return f"{self.part_music} is being played"
     def pause(self):
         self.data.pause()
         return "Music Has been Paused"
