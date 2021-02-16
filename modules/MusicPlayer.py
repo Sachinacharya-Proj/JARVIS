@@ -4,13 +4,15 @@ import os
 import random
 import time
 
+current_this_file_location = os.path.dirname(__file__)
+musics_txt_file_location = os.path.join(current_this_file_location, '..\\Data')
 # Collecting Data
 def generateMusicDirectory(**kargs):
     userprofile = os.environ.get('USERPROFILE')
     directoryMusic = os.path.join(userprofile, "Music")
     data_location = kargs.get('path', directoryMusic)
     try:
-        file = open("Data\\musics.txt", "w")
+        file = open(f"{musics_txt_file_location}\\musics.txt", "w")
         walkedDir = os.walk(data_location)
         for root, _, contents in walkedDir:
             for item in contents:
@@ -23,7 +25,7 @@ def generateMusicDirectory(**kargs):
 # Getting MediaURL
 def chooseMusics(args):
     try:
-        file = open('Data\\musics.txt', 'r')
+        file = open(f'{musics_txt_file_location}\\musics.txt', 'r')
         lines = file.readlines()
         randomInteger = random.randint(0, len(lines) - 1)
         selected = str(lines[randomInteger]).replace('\n', '')
@@ -47,15 +49,18 @@ class MusicPlayer():
         self.data = MediaPlayer(self.music)
         self.constant = 0
     def running(self):
+        "This will Returns Boolen True if Audio is being Played else returns False"
         if self.data.is_playing() == 0:
             return False
         else:
             return True
     def play(self):
+        "This will Play Loaded Audio"
         self.data.play()
         time.sleep(1)
         return f"{self.part_music} is being played"
     def pause(self):
+        "This will Paused the currently Playing Audio"
         self.data.pause()
         return "Music Has been Paused"
     def stop(self):
@@ -131,3 +136,5 @@ class MusicPlayer():
             return "Muting the Audio"
         else:
             return "UnMuting Audio"
+
+generateMusicDirectory()

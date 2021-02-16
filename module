@@ -5,7 +5,6 @@ import datetime
 import wikipedia
 import webbrowser
 import os
-from os import system as stm
 import smtplib
 from modules.chatterRob import ChatWithMeNow
 import datefinder
@@ -29,8 +28,11 @@ import subprocess
 from modules.music_downloader import download
 from modules.MusicPlayer import MusicPlayer
 # from modules.emailsList import findemails
+
+# Universal Datas
 osType = platform.system()
 userprofile = os.environ.get('USERPROFILE')
+current_this_file_location = os.path.dirname(__file__)
 
 if osType == 'Windows':
     import winsound
@@ -43,10 +45,9 @@ msg = EmailMessage()
 startOkay = 'okay'
 
 if osType == 'Windows':
-    stm('cls')
+    os.system('cls')
 else:
-    stm('clear')
-
+    os.system('clear')
 morning_greetings_array = [
     'Good morning, Sachin sir!',
     'Hello sir, Very good morning',
@@ -75,7 +76,6 @@ wakeingUp_greating = [
     "Your very own Virtual Assistance is here for you",
     "Your very own Virtual Assistance is ready for work"
     ]
-
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
@@ -104,11 +104,9 @@ def SetAlarmPlease(name, timeString):
                     break
             elif alarm_minutes < int(datetime.datetime.now().minute):
                 break
-
 def speak(audio):
     engine.say(audio)
     engine.runAndWait()
-
 def wishMe(codeTime):
     if codeTime == 0: 
         hour = int(datetime.datetime.now().hour)
@@ -126,7 +124,6 @@ def wishMe(codeTime):
     else:
         greets = wakeingUp_greating[random.randint(0, len(wakeingUp_greating) - 1)]
         printAndSpeak(greets)
-
 def takeCommand():
     r = sr.Recognizer()
     with sr.Microphone() as source:
@@ -143,12 +140,10 @@ def takeCommand():
         print(f"{Fore.MAGENTA}Say that again please...sir?{Fore.RESET}")
         return "None"
     return query.lower()
-
 def printAndSpeak(querystring):
     # print(f"{Fore.GREEN}{querystring}{Fore.RESET}")
     AskingToPrint("success", querystring)
     speak(querystring)
-
 def AskingToPrint(color, text):
     if color == 'danger':
         print(f"{Fore.RED}{text}{Fore.RESET}")
@@ -158,7 +153,6 @@ def AskingToPrint(color, text):
         print(f"{Fore.MAGENTA}{text}{Fore.RESET}")
     elif color == 'default':
         print(f"{Fore.BLUE}{text}{Fore.RESET}")
-
 def shutDownCommandStarted(code):
     speak('Shutting down in')
     while code > 0:
@@ -170,11 +164,15 @@ def shutDownCommandStarted(code):
         os.system('shutdown /p')
     else:
         os.system('shutdown -P 0')
+def filterNumber(string):
+    list_item = []
+    for item in string:
+        if str(item).isdigit():
+            list_item.append(item)
+    return list_item
 
 queued = []
-
 music_player = MusicPlayer()
-
 def speakLittleFreak(query, startOkay):
     if startOkay == 'okay':
         if query.startswith("wikipedia"):
@@ -261,11 +259,11 @@ def speakLittleFreak(query, startOkay):
         elif 'open' in query and 'github' in query:
             speak('Opening your github projects on web')
             webbrowser.open('https://github.com/Sachinacharya-Project?tab=repositories')
-        elif query == 'play music' or query == "play musics":
+        elif query == 'play music' or query == "play musics" or query == 'play song' or query == 'play audio':
             printAndSpeak(music_player.play())
-        elif query == 'pause music':
+        elif query == 'pause music' or query == 'pause audio' or query == 'pause song':
             printAndSpeak(music_player.pause())
-        elif query == 'stop music':
+        elif query == 'stop music' or query == 'stop playing':
             printAndSpeak(music_player.stop())
         elif query == 'change music':
             printAndSpeak(music_player.change())
@@ -385,7 +383,7 @@ def speakLittleFreak(query, startOkay):
                 if getname == 'abort' or getname == "cancel" or getname == "cancle" or getname == "don't send" or getname == "do not send":
                     break
                 else:
-                    emailList = open("Data\\emailer.txt", "r")
+                    emailList = open(f"{current_this_file_location}\\Data\\emailer.txt", "r")
                     getArray = []
                     for lst in emailList:
                         lst = lst.split("|")
