@@ -39,7 +39,6 @@ def chooseMusics(args):
             return "{}*{}".format(selected, randomInteger)
     except FileNotFoundError:
         return 'file-not-found'
-
 # Creating Main Module
 class MusicPlayer():
     def __init__(self):
@@ -136,5 +135,3 @@ class MusicPlayer():
             return "Muting the Audio"
         else:
             return "UnMuting Audio"
-
-generateMusicDirectory()
