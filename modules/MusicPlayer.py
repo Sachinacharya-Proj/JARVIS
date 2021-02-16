@@ -37,6 +37,7 @@ def chooseMusics(args):
             return lines
         else:
             return "{}*{}".format(selected, randomInteger)
+        file.close()
     except FileNotFoundError:
         return 'file-not-found'
 # Creating Main Module
@@ -66,9 +67,8 @@ class MusicPlayer():
         self.data.stop()
         return "Music is Stopped"
     def change(self):
-        data = "Changing From {}".format(self.music)
         self.music = str(chooseMusics('')).split('*')[0]
-        data += " to {}".format(self.music)
+        data = " to {}".format(self.part_music)
         self.data.stop()
         self.data = MediaPlayer(self.music)
         self.data.play()
@@ -101,7 +101,7 @@ class MusicPlayer():
     def volume(self, arg):
         if str(arg) == 'max':
             self.data.audio_set_volume(100)
-            return "Volume is set to 0"
+            return "Volume is set to 100"
         elif str(arg) == 'min':
             self.data.audio_set_volume(0)
             return 'Volume is set to 0'

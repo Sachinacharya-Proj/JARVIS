@@ -259,22 +259,34 @@ def speakLittleFreak(query, startOkay):
         elif 'open' in query and 'github' in query:
             speak('Opening your github projects on web')
             webbrowser.open('https://github.com/Sachinacharya-Project?tab=repositories')
-        elif query == 'play music' or query == "play musics" or query == 'play song' or query == 'play audio':
+        elif query == 'play music' or query == "play musics" or query == 'play song' or query == 'play audio' or query == 'play songs' or query == 'play audios' or query == 'play a song' or query == 'play a music' or query == 'play a audio' or query == 'can you sing for me' or query == 'would you sing for me' or query == 'can you sing me a song' or query == 'would you sing me a song':
+            printAndSpeak('Sure I would!')
             printAndSpeak(music_player.play())
-        elif query == 'pause music' or query == 'pause audio' or query == 'pause song':
+        elif query == 'pause music' or query == 'pause audio' or query == 'pause song' or query == 'pause the music' or query == 'pause the audio' or query == 'pause the song':
             printAndSpeak(music_player.pause())
-        elif query == 'stop music' or query == 'stop playing':
+        elif query == 'stop music' or query == 'stop playing' or query == 'stop the music' or query == 'stop the song' or query == 'stop singing':
             printAndSpeak(music_player.stop())
-        elif query == 'change music':
+        elif query == 'change music' or query == 'change the music':
             printAndSpeak(music_player.change())
-        elif query == 'play next music':
+        elif query == 'play next music' or query == 'play the next music':
             printAndSpeak(music_player.next())
-        elif query == 'play previous music':
+        elif query == 'play previous music' or query == 'play the previous music':
             printAndSpeak(music_player.prev())
         elif query == 'turn down the volume' or query == 'turn down volume':
             printAndSpeak(music_player.down_volume())
         elif query == 'turn up the volume' or query == 'turn up volume' or query == 'lower the sound' or query == 'lower sound':
             printAndSpeak(music_player.up_volume())
+        elif query.startswith('set volume to'):
+            data = ''
+            if 'max' in query or 'maximum' in query:
+                data = 'max'
+            elif 'min' in query or 'minimum' in query:
+                data = 'min'
+            else:
+                for i in query:
+                    if i.isdigit():
+                        data += i
+            printAndSpeak(music_player.volume(data))
         elif query == 'mute audio' or query == 'unmute audio':
             printAndSpeak(music_player.muteUnmute())
         elif 'open code' in query:
@@ -404,6 +416,7 @@ def speakLittleFreak(query, startOkay):
                         AskingToPrint("danger","You Have No User with Given Name, sir")
                         printAndSpeak("Do you wanna add HIM")
                     print(givenEmail)
+                    emailList.close()
         elif "what" in query or "find me" in query or "what time is it" in query or "what is" in query or "tell me" in query or "what about" in query:
             try:
                 outGain = weatherForcaster.AskForDetails(query)
@@ -412,6 +425,9 @@ def speakLittleFreak(query, startOkay):
                 AskingToPrint("danger","Returned None")
                 speak("Sorry sir, Cannot found the required results!")
                 speak("You may need to Update me! Just asking")
+        elif query == 'no more listening':
+            printAndSpeak('I am not listening from now on until you ask me to do so!')
+            input('Press Enter to Continue')
         elif query.startswith('find') or query.startswith('web') or query.startswith('ping'):
             if query.startswith('find'):
                 query = query.replace('find', '', 1)
@@ -429,7 +445,6 @@ def speakLittleFreak(query, startOkay):
             except Exception:
                 AskingToPrint('danger',"Cannot find any results! Nice time")
     return True
-numberOfTime = 0
 if __name__ == "__main__":
     if osType == 'Windows':
         winsound.Beep(2000, 200)
@@ -440,8 +455,19 @@ if __name__ == "__main__":
     while True:
         query = takeCommand().lower()
         if query == 'hey jarvis' or query == 'hey oracle' or query == 'hey nitro' or query == 'hey mark' or query == 'jarvis' or query == 'nitro' or query == 'mark' or query == 'oracle' or query == 'wake up' or query == 'hi jarvis' or query == 'hi nitro' or query == 'hi oracle' or query == 'hi mark':
-            wishMe(numberOfTime)
-            numberOfTime = 1
+            try:
+                file = open(f"{current_this_file_location}\\Data\\log.txt", 'r+')
+                to_day = datetime.date.today()
+                get_line = file.read().replace('\n', '')
+                if str(get_line) == str(to_day):
+                    wishMe(1)
+                else:
+                    file.truncate()
+                    file.write(str(to_day))
+                    wishMe(0)
+                file.close()
+            except FileNotFoundError:
+                printAndSpeak('Sorry sir, I am bit of sleepy so cannot greet you! Hope you don\' mind!')
             while True:
                 query = takeCommand().lower()
                 funcReturn = speakLittleFreak(query, startOkay)
@@ -449,6 +475,9 @@ if __name__ == "__main__":
                     continue
                 else:
                     break
+        elif query == 'no more listening':
+            printAndSpeak('I am not listening Anymore!')
+            input('Press Enter to Continue')
         elif query == 'go to sleep' or query=='pack up' or query == 'goto sleep' or query == 'close all' or query == 'close up' or query == 'your work is done here jarvis':
             if osType == 'Windows':
                 winsound.Beep(2000, 200)
