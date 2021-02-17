@@ -1,36 +1,29 @@
-mail_list = [
-    {
-        "name": "Sachin Acharya",
-        "add": "acharyaraj9865032909@gmail.com"
-    },
-    {
-        "name": "Sachin Acharya",
-        "add": "acharyaraj71@gmail.com"
-    },
-    {
-        "name": "Sachin Acharya",
-        "add": "rohitgupta36000@gmail.com"
-    },
-    {
-        "name": "Dipak Tamang",
-        "add": "dipak123tmg@gmail.com"
-    },
-    {
-        "name": "Aalok Pariyar",
-        "add": "alokpariyar71@gmail.com"
-    },
-    {
-        "name": "ram lal",
-        "add": "clear your name"
-    }
-]
+import os
+from Send_mail import send_email_smtp
+current_this_file_location = os.path.dirname(__file__)
+def chooseEmailAddress(name):
+    try:
+        email_list_array = []
+        file = open(f'{current_this_file_location}\\..\\Data\\emailer.txt', 'r')
+        email_list = file.readlines()
+        if len(email_list) > 0:
+            for email_tup in email_list:
+                email_data_list = str(email_tup).replace('\n', '').split("**")
+                if str(name).lower() in str(email_data_list[0]).lower():
+                    if str(email_data_list[1]).endswith('.com'):
+                        get_tuppled = tuple((email_data_list[0], email_data_list[1]))
+                        email_list_array.append(get_tuppled)
+            return email_list_array
+        else:
+            return 'no-email-address'
+    except FileNotFoundError:
+        return 'file-not-found'
 
-intialArray = []
-def findemails(name):
-    if "aacharya" in name:
-        name = name.replace("aacharya", "acharya")
-    for child in mail_list:
-        if name in child["name"].lower():
-            getTuppled = (child["name"], child["add"])
-            intialArray.append(getTuppled)
-    return intialArray
+def writeEmailAddress(name, email):
+    try:
+        file = open(f"{current_this_file_location}\\..\\Data\\emailer.txt", 'a')
+        file.write("\n{}**{}".format(name, email))
+        file.close()
+        return True
+    except FileNotFoundError:
+        return 'file-not-opened'

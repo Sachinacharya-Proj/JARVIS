@@ -8,6 +8,7 @@ current_this_file_location = os.path.dirname(__file__)
 musics_txt_file_location = os.path.join(current_this_file_location, '..\\Data')
 # Collecting Data
 def generateMusicDirectory(**kargs):
+    "If argument path is provide, it will scan the provided path else will look for musics in Music Library"
     userprofile = os.environ.get('USERPROFILE')
     directoryMusic = os.path.join(userprofile, "Music")
     data_location = kargs.get('path', directoryMusic)
@@ -29,14 +30,18 @@ def chooseMusics(args):
         lines = file.readlines()
         randomInteger = random.randint(0, len(lines) - 1)
         selected = str(lines[randomInteger]).replace('\n', '')
-        if args == 'name':
-            return selected
-        elif args == 'number':
-            return randomInteger
-        elif args == 'list':
-            return lines
+        check = os.path.exists(selected)
+        if check == True:
+            if args == 'name':
+                return selected
+            elif args == 'number':
+                return randomInteger
+            elif args == 'list':
+                return lines
+            else:
+                return "{}*{}".format(selected, randomInteger)
         else:
-            return "{}*{}".format(selected, randomInteger)
+            return 'file-not-found'
         file.close()
     except FileNotFoundError:
         return 'file-not-found'

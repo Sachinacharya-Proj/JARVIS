@@ -27,8 +27,8 @@ import platform
 import subprocess
 from modules.music_downloader import download
 from modules.MusicPlayer import MusicPlayer
-# from modules.emailsList import findemails
-
+from modules.MusicPlayer import generateMusicDirectory as generateMusic
+from modules.emailsList import chooseEmailAddress, writeEmailAddress
 # Universal Datas
 osType = platform.system()
 userprofile = os.environ.get('USERPROFILE')
@@ -48,6 +48,10 @@ if osType == 'Windows':
     os.system('cls')
 else:
     os.system('clear')
+def returnRandomItem(array):
+    "Requires Array and returns random Member of Normal Array of 1 D"
+    randomInt = random.randint(0, len(list(array))-1)
+    return array[randomInt]
 morning_greetings_array = [
     'Good morning, Sachin sir!',
     'Hello sir, Very good morning',
@@ -170,7 +174,79 @@ def filterNumber(string):
         if str(item).isdigit():
             list_item.append(item)
     return list_item
-
+def checkIfThisExistInThis(array, cont):
+    "Ask for a array and return Boolen True if kargs contains the same members as in array else Boolen False"
+    try:
+        array.index(cont)
+        return True
+    except Exception:
+        return False
+def filterEmail(name, subject, body, optionsTwo):
+    """
+    name: Name of Receiver
+    subject: Reason of mail
+    body: Messages
+    optionsTwo: Y for attachment(Manually), N for no attachment
+    """
+    returned_email = chooseEmailAddress(str(name))
+    if len(returned_email) > 1:
+        counter = 0
+        print('More Than One Emails are found, Please choose one')
+        print('Choose Index')
+        for email in returned_email:
+            print("{}. Name: {}, Email: {}".format(counter, email[0], email[1]))
+            counter += 1
+        while True:
+            ask = input('Index')
+            if ask == 'exit' or ask == 'abort':
+                return False
+            else:
+                get_number_confirmation = '' # Get Number from ask and convert to integer
+                if get_number_confirmation == True:
+                    ask = int(ask)
+                    email = returned_email[ask][1]
+                    send_email_smtp(subject, email, body, optionsTwo)
+                    return True
+                else:
+                    return False
+    elif len(returned_email) == 0:
+        print('Cannot Found any Named Email Address')
+        while True:
+            print('Wanna add new one to list')
+            ask = takeCommand().lower()
+            pos = ['yes', 'yup', 'yep', 'yeah', 'sure', 'of course']
+            neg = ['no', 'nope', 'not now', 'will later']
+            if checkIfThisExistInThis(pos, ask) == True:
+                while True:
+                    print('Do you wanna set Manually or via Voice Command')
+                    ask = takeCommand().lower()
+                    pos = ['manually', 'yes', 'sure', 'of course']
+                    neg = ['no', 'voice command']
+                    if ask == 'exit':
+                        return False
+                    elif checkIfThisExistInThis(pos, ask) == True: # Taking User-input, literally
+                        name = input('Name: ')
+                        email = input('Email: ')
+                        writeEmailAddress(name, email)
+                        send_email_smtp(subject, email, body, optionsTwo)
+                        return True
+                    elif checkIfThisExistInThis(neg, ask):
+                        name = input('Name: ')
+                        email = input('Email: ')
+                        # Needed to add Confirmation before writing in email list
+                        writeEmailAddress(name, email)
+                        send_email_smtp(subject, email, body, optionsTwo)
+                        return True
+                    else:
+                        pass
+            elif checkIfThisExistInThis(neg, ask) == True:
+                return False
+            else:
+                pass
+    else:
+        email = str(returned_email[0][1])
+        print(email)
+        send_email_smtp(subject, email, body, optionsTwo)
 queued = []
 music_player = MusicPlayer()
 def speakLittleFreak(query, startOkay):
@@ -260,17 +336,43 @@ def speakLittleFreak(query, startOkay):
             speak('Opening your github projects on web')
             webbrowser.open('https://github.com/Sachinacharya-Project?tab=repositories')
         elif query == 'play music' or query == "play musics" or query == 'play song' or query == 'play audio' or query == 'play songs' or query == 'play audios' or query == 'play a song' or query == 'play a music' or query == 'play a audio' or query == 'can you sing for me' or query == 'would you sing for me' or query == 'can you sing me a song' or query == 'would you sing me a song':
-            printAndSpeak('Sure I would!')
-            printAndSpeak(music_player.play())
+            array = [
+                "sure, I will!",
+                "as you wish sir!",
+                "I am playing sir!",
+                "Alright! Sir!",
+                "Hope you like this one!"
+            ]
+            to_speak = returnRandomItem(array)
+            printAndSpeak(to_speak)
+            returned_string = music_player.play()
+            if 'file-not-found' in str(returned_string):
+                printAndSpeak('Sorry, Music list seems to be Vanished')
+                printAndSpeak('Do you wanna Update List')
+                while True:
+                    ask = takeCommand().lower()
+                    if ask == 'sure' or ask == 'yes' or ask == 'yup' or ask == 'yep' or ask =='update' or ask == 'alright' or ask == 'yeah':
+                        data = generateMusic()
+                        if data == True:
+                            printAndSpeak('Music list has been updated successfully')
+                            break
+                        else:
+                            printAndSpeak('Sorry, cannot update music list')
+                            break
+
+                    elif ask == 'no' or ask == 'nope' or ask == 'no now':
+                        printAndSpeak('Task is being queued. Will be execute before I go to sleep')
+                        queued.append('update music')
+                        break
         elif query == 'pause music' or query == 'pause audio' or query == 'pause song' or query == 'pause the music' or query == 'pause the audio' or query == 'pause the song':
             printAndSpeak(music_player.pause())
         elif query == 'stop music' or query == 'stop playing' or query == 'stop the music' or query == 'stop the song' or query == 'stop singing':
             printAndSpeak(music_player.stop())
-        elif query == 'change music' or query == 'change the music':
+        elif query == 'change music' or query == 'change the music' or query == 'change the song' or query == 'change song':
             printAndSpeak(music_player.change())
-        elif query == 'play next music' or query == 'play the next music':
+        elif query == 'play next music' or query == 'play the next music' or query == 'play next song' or query == 'play the next song':
             printAndSpeak(music_player.next())
-        elif query == 'play previous music' or query == 'play the previous music':
+        elif query == 'play previous music' or query == 'play the previous music' or query == 'play the previous song' or query == 'play previous song':
             printAndSpeak(music_player.prev())
         elif query == 'turn down the volume' or query == 'turn down volume':
             printAndSpeak(music_player.down_volume())
@@ -342,14 +444,13 @@ def speakLittleFreak(query, startOkay):
             permission = takeCommand()
             if "okay" in permission or "ok" in permission or "alright" in permission:
                 qrcodeScanner.MainFunc()
-        # Not Working
         elif query == 'wrap up all' or query == 'close all':
             if len(queued) > 0:
                 printAndSpeak("Ruuning Queued Tasks")
                 for task in queued:
-                    if task == 'musics':
+                    if task == 'update music':
                         printAndSpeak("Scanning for Musics")
-                        # generateMusicDirectory()
+                        generateMusic()
             if osType=='Windows':
                 winsound.Beep(2000, 200)
             else:
@@ -363,7 +464,6 @@ def speakLittleFreak(query, startOkay):
             else:
                 os.system('clear')
             exit()
-        # Not Working
         elif "let us chat" in query or "let's chat" in query:
             speak("Alright sir, let's chat, I am listening sir!")
             while True:
@@ -379,14 +479,12 @@ def speakLittleFreak(query, startOkay):
                     if resultGot != None:
                         printAndSpeak(resultGot)
 
-        # Not working
         elif query == "clear screen":
             speak("Clearing Screen")
             if osType == 'Windows':
                 os.system("cls")
             else:
                 os.system('clear')
-        # Not working
         elif query == 'mail' or query == "email" or query == 'send email' or query == 'send a mail' or query == 'send a email' or query == "send mail" or query == 'sendmail' or query == 'sendemail':
             while True:
                 printAndSpeak("Alright Sir")
@@ -395,28 +493,29 @@ def speakLittleFreak(query, startOkay):
                 if getname == 'abort' or getname == "cancel" or getname == "cancle" or getname == "don't send" or getname == "do not send":
                     break
                 else:
-                    emailList = open(f"{current_this_file_location}\\Data\\emailer.txt", "r")
-                    getArray = []
-                    for lst in emailList:
-                        lst = lst.split("|")
-                        if getname in lst[0].lower():
-                            getArray.append((lst[0], lst[1]))
-                    givenEmail = ""
-                    if len(getArray) > 0:
-                            printAndSpeak("More than one data found with name {}, Please Provide Right one!".format(getname))
-                            i=65
-                            for cont in getArray:
-                                print("{}) {}".format(i+1, cont[1]))
-                                i = i+1
-                            getIndex = int(takeCommand().lower())
-                            givenEmail = getArray[getIndex][1]
-                    elif len(getArray) == 1:
-                        givenEmail = getArray[0][0]
+                    printAndSpeak('What is the Subject Sir?')
+                    subject = takeCommand()
+                    printAndSpeak('What should I write, sir?')
+                    body = takeCommand()
+                    printAndSpeak("If you wanna attach attachments")
+                    ask = takeCommand()
+                    postive = ['yes', 'sure', 'alright', 'ok', 'okay', 'why not', 'yes i want to', 'attach']
+                    negative = ['no', "i don't want", 'nope', 'not now', 'might not']
+                    response = 'n'
+                    while True:
+                        if checkIfThisExistInThis(postive, ask) == True:
+                            response = 'y'
+                            break
+                        elif checkIfThisExistInThis(negative, ask) == True:
+                            response = 'n'
+                            break
+                        else:
+                            pass
+                    ex = filterEmail(getname, subject, body, response)
+                    if ex == True:
+                        printAndSpeak('Message Successfully sented')
                     else:
-                        AskingToPrint("danger","You Have No User with Given Name, sir")
-                        printAndSpeak("Do you wanna add HIM")
-                    print(givenEmail)
-                    emailList.close()
+                        printAndSpeak("Message hasn't been sented")
         elif "what" in query or "find me" in query or "what time is it" in query or "what is" in query or "tell me" in query or "what about" in query:
             try:
                 outGain = weatherForcaster.AskForDetails(query)
@@ -458,12 +557,15 @@ if __name__ == "__main__":
             try:
                 file = open(f"{current_this_file_location}\\Data\\log.txt", 'r+')
                 to_day = datetime.date.today()
-                get_line = file.read().replace('\n', '')
+                get_line = file.readlines()
+                if len(get_line) == 0:
+                    get_line = 0
+                else:
+                    get_line = str(get_line[-1]).replace('\n', '')
                 if str(get_line) == str(to_day):
                     wishMe(1)
                 else:
-                    file.truncate()
-                    file.write(str(to_day))
+                    file.write("{}\n".format(str(to_day)))
                     wishMe(0)
                 file.close()
             except FileNotFoundError:

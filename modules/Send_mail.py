@@ -17,13 +17,19 @@ def AskFile():
     return file_path
 
 def send_email_smtp(subject, to, body, optionTwo):
+    """
+    Subject: Matter of Message
+    To: to whome you wanna send message to
+    Body: What are your message
+    optionTwo: y if you wanna send attachments else n
+    """
     msg = EmailMessage()
     msg['Subject'] = subject
     msg['From'] = EMAIL_ADDRESS
     msg['to'] = to
     msg.set_content(body)
 
-    if optionTwo == 'y':
+    if str(optionTwo).lower() == 'y':
         print(Fore.GREEN, "Choose your Files: ", Fore.RESET)
         fileArray = AskFile()
         if len(fileArray) == 0:
