@@ -1,7 +1,8 @@
 import os
-from Send_mail import send_email_smtp
 current_this_file_location = os.path.dirname(__file__)
 def chooseEmailAddress(name):
+    if 'aacharya' in (name).lower():
+        name = str(name).replace('aacharya', 'acharya')
     try:
         email_list_array = []
         file = open(f'{current_this_file_location}\\..\\Data\\emailer.txt', 'r')

@@ -54,31 +54,31 @@ def returnRandomItem(array):
     return array[randomInt]
 morning_greetings_array = [
     'Good morning, Sachin sir!',
-    'Hello sir, Very good morning',
-    "Good Morming, Sachin Sir, how are you doin'"
+    'Hello sir, Very good morning!',
+    "Good Morning, Sachin Sir, how are you doin'?"
     ]
 afternoom_greetings_array = [
     'Afternoon, Sachin Sir!',
-    "What's Up Sir, Good afternoon",
-    "Nice to see you, again Sir"
+    "What's Up Sir, Good afternoon!",
+    "Nice to see you, again Sir!"
     ]
 evening_greetings_array = [
     'Good evening, Sachin, sir!',
-    "Hope you were having a good time, evening sachin sir"
+    "Hope you were having a good time, evening sachin sir!"
     ]
 regular_greetings = [
     "You seems happy sir, today!",
-    "You looks great as always",
-    "I am so happy to hear from you sir",
-    "As always, I am at you service sir"
+    "You looks great as always!",
+    "I am so happy to hear from you sir!",
+    "As always, I am at you service sir!"
     ]
 wakeingUp_greating = [
     "I'm awake sir, ready for some work!",
     "Yes sir, How can I help you?",
-    "I am Refreshed Now with a little Nap",
+    "I am Refreshed Now with a little Nap!",
     "What a wonderful dream that was, anyway How can I help you sir?",
-    "Your very own Virtual Assistance is here for you",
-    "Your very own Virtual Assistance is ready for work"
+    "Your very own Virtual Assistance is here for you!",
+    "Your very own Virtual Assistance is ready for work!"
     ]
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
@@ -169,11 +169,14 @@ def shutDownCommandStarted(code):
     else:
         os.system('shutdown -P 0')
 def filterNumber(string):
-    list_item = []
+    list_item = ''
     for item in string:
         if str(item).isdigit():
-            list_item.append(item)
-    return list_item
+            list_item += str(item)
+    if len(list_item) == 0:
+        return 0
+    else:
+        return int(list_item)
 def checkIfThisExistInThis(array, cont):
     "Ask for a array and return Boolen True if kargs contains the same members as in array else Boolen False"
     try:
@@ -191,28 +194,25 @@ def filterEmail(name, subject, body, optionsTwo):
     returned_email = chooseEmailAddress(str(name))
     if len(returned_email) > 1:
         counter = 0
-        print('More Than One Emails are found, Please choose one')
-        print('Choose Index')
+        printAndSpeak('More Than One Emails are found, Please choose one!')
+        printAndSpeak('Please, Choose Index!')
         for email in returned_email:
-            print("{}. Name: {}, Email: {}".format(counter, email[0], email[1]))
+            print("{}. Name: {}, Email: {}".format(counter+1, email[0], email[1]))
             counter += 1
         while True:
-            ask = input('Index')
+            ask = takeCommand().lower()
             if ask == 'exit' or ask == 'abort':
                 return False
             else:
-                get_number_confirmation = '' # Get Number from ask and convert to integer
-                if get_number_confirmation == True:
-                    ask = int(ask)
-                    email = returned_email[ask][1]
-                    send_email_smtp(subject, email, body, optionsTwo)
-                    return True
-                else:
-                    return False
+                get_number_confirmation = int(filterNumber(ask)) - 1
+                ask = int(get_number_confirmation)
+                email = returned_email[ask][1]
+                send_email_smtp(subject, email, body, optionsTwo)
+                return True
     elif len(returned_email) == 0:
-        print('Cannot Found any Named Email Address')
+        printAndSpeak('Cannot Found any Named Email Address')
         while True:
-            print('Wanna add new one to list')
+            printAndSpeak('Wanna add new one to list')
             ask = takeCommand().lower()
             pos = ['yes', 'yup', 'yep', 'yeah', 'sure', 'of course']
             neg = ['no', 'nope', 'not now', 'will later']
@@ -245,8 +245,8 @@ def filterEmail(name, subject, body, optionsTwo):
                 pass
     else:
         email = str(returned_email[0][1])
-        print(email)
         send_email_smtp(subject, email, body, optionsTwo)
+        return True
 queued = []
 music_player = MusicPlayer()
 def speakLittleFreak(query, startOkay):
@@ -490,19 +490,29 @@ def speakLittleFreak(query, startOkay):
                 printAndSpeak("Alright Sir")
                 printAndSpeak("Whome you wanna send to?")
                 getname = takeCommand().lower()
-                if getname == 'abort' or getname == "cancel" or getname == "cancle" or getname == "don't send" or getname == "do not send":
+                posi = ['abort', "cancel", "cancle", "don't send", "do not send", "stop sending"]
+                if checkIfThisExistInThis(posi, getname):
                     break
                 else:
+                    printAndSpeak('Choosed {}'.format(getname))
                     printAndSpeak('What is the Subject Sir?')
                     subject = takeCommand()
+                    if subject == 'exit':
+                        break
+                    else:
+                        pass
                     printAndSpeak('What should I write, sir?')
                     body = takeCommand()
+                    if body == 'exit':
+                        break
+                    else:
+                        pass
                     printAndSpeak("If you wanna attach attachments")
-                    ask = takeCommand()
-                    postive = ['yes', 'sure', 'alright', 'ok', 'okay', 'why not', 'yes i want to', 'attach']
-                    negative = ['no', "i don't want", 'nope', 'not now', 'might not']
-                    response = 'n'
                     while True:
+                        ask = takeCommand()
+                        postive = ['yes', 'sure', 'alright', 'ok', 'okay', 'why not', 'yes i want to', 'attach']
+                        negative = ['no', "i don't want", 'nope', 'not now', 'might not']
+                        response = 'n'
                         if checkIfThisExistInThis(postive, ask) == True:
                             response = 'y'
                             break
@@ -512,10 +522,13 @@ def speakLittleFreak(query, startOkay):
                         else:
                             pass
                     ex = filterEmail(getname, subject, body, response)
+                    print(ex)
                     if ex == True:
                         printAndSpeak('Message Successfully sented')
+                        break
                     else:
                         printAndSpeak("Message hasn't been sented")
+                        break
         elif "what" in query or "find me" in query or "what time is it" in query or "what is" in query or "tell me" in query or "what about" in query:
             try:
                 outGain = weatherForcaster.AskForDetails(query)
